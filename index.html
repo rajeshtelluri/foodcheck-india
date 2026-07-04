@@ -1,12 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FoodCheck India</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#161B33">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FoodCheck">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{--indigo:#161B33;--indigo-2:#232B52;--turmeric:#F0A93C;--saffron:#E2582A;--leaf:#4E9A55;--paper:#F5F1E6;--amber-dim:#8C6A2E;--red:#D14545;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -16,6 +23,16 @@
   .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;}
   .brand span{color:var(--turmeric);}
   .back-btn{background:none;border:none;color:#fff;font-size:14px;cursor:pointer;display:none;}
+  .hist-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
+  .hist-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .hist-list{flex:1;overflow-y:auto;padding:12px 18px;}
+  .hist-empty{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
+  .hist-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;cursor:pointer;}
+  .hist-score{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
+  .hist-info{flex:1;min-width:0;}
+  .hist-name{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hist-meta{font-size:11px;color:#8A8A78;margin-top:2px;}
+  .clear-hist-btn{margin:0 18px 16px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--red);border:1px solid #F2D2CB;}
   .screen{flex:1;display:none;flex-direction:column;}
   .screen.active{display:flex;}
   #scan-screen{flex:1;}
@@ -65,19 +82,137 @@
   .risk-high{background:#FBE2DE;color:var(--red);}
   .risk-mod{background:#FCEAD1;color:var(--amber-dim);}
   .risk-low{background:#E8F3E3;color:var(--leaf);}
+  .fav-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#C9C2A8;line-height:1;padding:0;margin-left:auto;}
+  .fav-btn.active{color:var(--turmeric);}
+  .fav-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .fav-list{flex:1;overflow-y:auto;padding:12px 18px;}
+  .fav-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+  .fav-item .hist-info{cursor:pointer;}
+  .fav-remove{background:none;border:none;font-size:16px;cursor:pointer;color:var(--turmeric);flex-shrink:0;}
+  .home-fav-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
+  .home-fav-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
+  .home-fav-list{margin-top:12px;}
+  .settings-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
+  #profile-screen{padding:30px 24px;align-items:center;text-align:center;}
+  .profile-avatar{width:76px;height:76px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:28px;overflow:hidden;}
+  .profile-avatar img{width:100%;height:100%;object-fit:cover;}
+  .profile-name{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;margin-top:14px;}
+  .profile-email{font-size:12px;color:#8A8A78;margin-top:2px;}
+  .profile-guest-note{font-size:12px;color:#8A8A78;margin-top:10px;line-height:1.6;padding:0 10px;}
+  .profile-actions{width:100%;margin-top:28px;display:flex;flex-direction:column;gap:10px;}
+  .profile-btn{padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;}
+  .profile-btn.neutral{background:#fff;border:1px solid #DFD9C4;color:#1A1A1A;}
+  .profile-btn.danger{background:#fff;border:1px solid #F2D2CB;color:var(--red);}
+  .profile-btn.primary{background:var(--indigo);color:#fff;border:none;}
+  .profile-version{margin-top:24px;font-size:10.5px;color:#B8B2A0;}
+  .alt-btn{margin:0 18px 14px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;background:#EEF6EC;color:var(--leaf);border:1px solid #CFE7CB;display:none;}
+  .alt-head{padding:16px 18px;background:var(--leaf);color:#fff;}
+  .alt-head .k{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;}
+  .alt-head .v{font-size:11px;opacity:.9;margin-top:3px;}
+  .alt-list{padding:14px 18px;overflow-y:auto;flex:1;}
+  .alt-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
+  .alt-loading{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
+  #search-screen{padding:0;}
+  .search-head{padding:14px 18px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .search-head input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #DFD9C4;font-size:14px;background:var(--paper);}
+  .search-results{flex:1;overflow-y:auto;padding:12px 18px;}
+  .search-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
+  #compare-screen{padding:16px 18px;overflow-y:auto;}
+  .compare-slots{display:flex;gap:10px;}
+  .compare-slot{flex:1;background:#fff;border:2px dashed #DFD9C4;border-radius:12px;padding:16px 10px;text-align:center;font-size:11.5px;color:#8A8A78;cursor:pointer;min-height:90px;display:flex;align-items:center;justify-content:center;}
+  .compare-slot.filled{border-style:solid;border-color:#E9E3D0;flex-direction:column;gap:6px;cursor:default;}
+  .compare-slot-score{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;}
+  .compare-slot-name{font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;color:#1A1A1A;padding:0 4px;}
+  .compare-slot-remove{font-size:10.5px;color:var(--red);text-decoration:underline;cursor:pointer;margin-top:2px;}
+  .compare-picker{margin-top:14px;background:#fff;border-radius:12px;border:1px solid #E9E3D0;padding:12px;}
+  .compare-picker input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid #DFD9C4;font-size:13px;background:var(--paper);}
+  .compare-picker-results{margin-top:10px;max-height:240px;overflow-y:auto;}
+  .compare-table{margin-top:18px;background:#fff;border-radius:12px;border:1px solid #E9E3D0;overflow:hidden;}
+  .compare-row{display:flex;border-bottom:1px solid #F0ECDD;}
+  .compare-row:last-child{border-bottom:none;}
+  .compare-cell{flex:1;padding:10px 12px;font-size:12px;text-align:center;}
+  .compare-cell.label{flex:0 0 90px;text-align:left;color:#8A8A78;font-size:11px;background:var(--paper);}
+  .compare-row.header .compare-cell{font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
   #notfound-screen p{font-size:12px;color:#8A8A78;line-height:1.5;}
+  #onboarding-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
+  .ob-icon{font-size:52px;margin-bottom:10px;}
+  .ob-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#1A1A1A;}
+  .ob-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:10px;padding:0 8px;}
+  .ob-dots{display:flex;gap:6px;margin-top:26px;}
+  .ob-dot{width:7px;height:7px;border-radius:50%;background:#DFD9C4;}
+  .ob-dot.on{background:var(--saffron);width:18px;border-radius:4px;}
+  .ob-next{margin-top:26px;width:100%;background:var(--indigo);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  .ob-skip{margin-top:12px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
+  #login-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
+  .login-icon{font-size:48px;margin-bottom:6px;}
+  .login-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
+  .login-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:8px;padding:0 6px;}
+  .google-btn{margin-top:28px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #DFD9C4;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:#1A1A1A;}
+  .google-btn svg{width:18px;height:18px;}
+  .guest-btn{margin-top:14px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
+  .user-chip{display:none;align-items:center;gap:6px;cursor:pointer;}
+  .user-chip img{width:26px;height:26px;border-radius:50%;}
+  .user-chip span{font-size:11.5px;font-weight:600;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .home-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;display:none;}
+  #home-screen{padding:20px 18px;overflow-y:auto;}
+  .home-greet{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#1A1A1A;line-height:1.4;}
+  .home-stats{display:flex;gap:10px;margin-top:16px;}
+  .stat-card{flex:1;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:14px;text-align:center;}
+  .stat-num{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);}
+  .stat-label{font-size:10.5px;color:#8A8A78;margin-top:4px;}
+  .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .home-cta-secondary{margin-top:10px;background:#fff;color:var(--indigo);border:1px solid #DFD9C4;padding:13px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
+  .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
+  .home-recent-list{margin-top:12px;}
+  .home-support{margin-top:24px;text-align:center;font-size:11.5px;color:#8A8A78;}
+  .home-support a{color:var(--saffron);text-decoration:underline;}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
     <div class="brand">FoodCheck<span>India</span></div>
-    <button class="back-btn" id="backBtn">← Scan again</button>
+    <div class="user-chip" id="userChip" title="Profile"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
+    <button class="settings-btn" id="settingsBtn" title="Profile & Settings">⚙️</button>
+    <button class="home-btn" id="homeBtn" title="Home">🏠</button>
+    <button class="back-btn" id="backBtn">← Back</button>
   </div>
-  <div class="screen active" id="scan-screen">
+  <div class="screen" id="home-screen">
+    <div class="home-greet" id="homeGreet">Welcome!</div>
+    <div class="home-stats">
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Products scanned</div></div>
+      <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label">Avg Swaasth Score</div></div>
+    </div>
+    <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
+    <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
+    <div class="home-cta-secondary" id="homeSearchBtn">🔍 Search by product name</div>
+    <div class="home-cta-secondary" id="homeCompareBtn">⚖️ Compare Products</div>
+    <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
+    <div class="home-recent-list" id="homeRecentList"></div>
+    <div class="home-fav-head">Your Favorites <span id="homeFavViewAll">View all</span></div>
+    <div class="home-fav-list" id="homeFavList"></div>
+    <div class="home-support">Need help? <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
+  </div>
+  <div class="screen active" id="onboarding-screen">
+    <div class="ob-icon" id="obIcon">📷</div>
+    <div class="ob-title" id="obTitle">Scan any barcode</div>
+    <div class="ob-desc" id="obDesc">Point your camera at any packaged food product sold in India to check it instantly.</div>
+    <div class="ob-dots"><span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+    <button class="ob-next" id="obNextBtn">Next</button>
+    <button class="ob-skip" id="obSkipBtn">Skip</button>
+  </div>
+  <div class="screen" id="login-screen">
+    <div class="login-icon">🇮🇳</div>
+    <div class="login-title">Sign in to FoodCheck India</div>
+    <div class="login-desc">Sign in with Google to personalize your FoodCheck India experience.</div>
+    <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
+    <button class="guest-btn" id="guestBtn">Continue as guest</button>
+  </div>
+  <div class="screen" id="scan-screen">
     <div id="reader"></div>
     <p class="scan-hint">Point your camera at a barcode</p>
     <div class="manual-toggle"><button id="manualToggleBtn">or type a barcode number manually</button></div>
@@ -93,7 +228,7 @@
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
   </div>
   <div class="screen" id="score-screen">
-    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span></div>
+    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span><button class="fav-btn" id="favBtn" title="Save to favorites">☆</button></div>
     <div style="padding:0 18px;">
       <div class="prod-name" id="prodName">—</div>
       <div class="prod-sub" id="prodSub">—</div>
@@ -104,19 +239,354 @@
     </div>
     <div class="pills" id="pillsRow"></div>
     <div class="list" id="listRows"></div>
+    <div class="alt-btn" id="altBtn">🥗 See Healthier Alternatives</div>
     <div class="breakdown-btn" id="breakdownBtn">See full ingredient breakdown</div>
     <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
+  </div>
+  <div class="screen" id="alternatives-screen">
+    <div class="alt-head"><div class="k">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
+    <div class="alt-list" id="altList"></div>
+  </div>
+  <div class="screen" id="search-screen">
+    <div class="search-head">
+      <input type="text" id="searchInput" placeholder="e.g. Maggi noodles, Britannia biscuits" inputmode="search">
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="screen" id="compare-screen">
+    <div class="compare-slots">
+      <div class="compare-slot" id="slotA" data-slot="A">+ Add Product A</div>
+      <div class="compare-slot" id="slotB" data-slot="B">+ Add Product B</div>
+    </div>
+    <div class="compare-picker" id="comparePicker" style="display:none;">
+      <input type="text" id="comparePickerInput" placeholder="Search product name…">
+      <div class="compare-picker-results" id="comparePickerResults"></div>
+    </div>
+    <div class="compare-table" id="compareTable"></div>
   </div>
   <div class="screen" id="breakdown-screen">
     <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
     <div class="accordion" id="accordionList"></div>
   </div>
+  <div class="screen" id="history-screen">
+    <div class="hist-head">Recent scans</div>
+    <div class="hist-list" id="histList"></div>
+    <div class="clear-hist-btn" id="clearHistBtn">Clear history</div>
+  </div>
+  <div class="screen" id="favorites-screen">
+    <div class="fav-head">Your Favorites</div>
+    <div class="fav-list" id="favList"></div>
+  </div>
+  <div class="screen" id="profile-screen">
+    <div class="profile-avatar" id="profileAvatarWrap">👤</div>
+    <div class="profile-name" id="profileName">Guest</div>
+    <div class="profile-email" id="profileEmail"></div>
+    <div class="profile-guest-note" id="profileGuestNote" style="display:none;">You're using FoodCheck India as a guest. Sign in with Google to personalize your account.</div>
+    <div class="profile-actions">
+      <div class="profile-btn primary" id="profileSignInBtn" style="display:none;">Sign in with Google</div>
+      <div class="profile-btn neutral" id="installAppBtn" style="display:none;">📲 Install App</div>
+      <div class="profile-btn neutral" id="profileClearHistBtn">Clear scan history</div>
+      <div class="profile-btn neutral" id="profileClearFavBtn">Clear all favorites</div>
+      <div class="profile-btn danger" id="profileSignOutBtn" style="display:none;">Sign out</div>
+    </div>
+    <div class="profile-version">FoodCheck India · Need help? <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);">Contact support</a></div>
+  </div>
 </div>
 <script>
-const screens = ['scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen'];
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen','search-screen','compare-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
-  document.getElementById('backBtn').style.display = (id==='score-screen'||id==='breakdown-screen') ? 'block' : 'none';
+  document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen'||id==='search-screen'||id==='compare-screen') ? 'block' : 'none';
+  document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
+  document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
+  if(id==='home-screen'){ renderHome(); }
+  if(id==='profile-screen'){ renderProfile(); }
+}
+document.getElementById('homeBtn').addEventListener('click', () => showScreen('home-screen'));
+document.getElementById('homeScanBtn').addEventListener('click', goToScanScreen);
+document.getElementById('homeManualBtn').addEventListener('click', () => {
+  goToScanScreen();
+  document.getElementById('manualForm').classList.add('show');
+  document.getElementById('manualInput').focus();
+});
+document.getElementById('homeSearchBtn').addEventListener('click', () => {
+  showScreen('search-screen');
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+});
+document.getElementById('homeCompareBtn').addEventListener('click', () => {
+  showScreen('compare-screen');
+});
+let compareProductA = null, compareProductB = null, compareActiveSlot = null;
+function fetchProductByBarcode(barcode){
+  return fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`)
+    .then(r => r.json())
+    .then(data => data.status === 1 ? data.product : null);
+}
+function openComparePicker(slot){
+  compareActiveSlot = slot;
+  document.getElementById('comparePicker').style.display = 'block';
+  const input = document.getElementById('comparePickerInput');
+  input.value = '';
+  input.focus();
+  renderComparePickerList('');
+}
+renderCompareSlots();
+let compareDebounce;
+document.getElementById('comparePickerInput').addEventListener('input', (e) => {
+  clearTimeout(compareDebounce);
+  const q = e.target.value.trim();
+  compareDebounce = setTimeout(() => renderComparePickerList(q), 400);
+});
+function renderComparePickerList(query){
+  const resultsEl = document.getElementById('comparePickerResults');
+  if(query.length < 2){
+    const hist = loadHistory().slice(0,8);
+    if(hist.length === 0){ resultsEl.innerHTML = '<div class="alt-loading">Type to search, or scan a product first to see it here.</div>'; return; }
+    resultsEl.innerHTML = '';
+    hist.forEach(h => {
+      const div = document.createElement('div'); div.className = 'search-item';
+      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+      div.addEventListener('click', () => selectCompareProduct(h.barcode));
+      resultsEl.appendChild(div);
+    });
+    return;
+  }
+  resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
+  fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=10`)
+    .then(r => r.json()).then(data => {
+      const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
+      if(products.length === 0){ resultsEl.innerHTML = '<div class="alt-loading">No products found.</div>'; return; }
+      resultsEl.innerHTML = '';
+      products.forEach(p => {
+        const { score } = computeScore(p);
+        const tier = scoreTier(score);
+        const div = document.createElement('div'); div.className = 'search-item';
+        div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(p.product_name || p.product_name_en)}</div><div class="hist-meta">${escapeHtml(p.brands||'')}</div></div>`;
+        div.addEventListener('click', () => selectCompareProduct(p.code));
+        resultsEl.appendChild(div);
+      });
+    }).catch(() => { resultsEl.innerHTML = '<div class="alt-loading">Search failed. Try again.</div>'; });
+}
+function selectCompareProduct(barcode){
+  const resultsEl = document.getElementById('comparePickerResults');
+  resultsEl.innerHTML = '<div class="alt-loading">Loading product…</div>';
+  fetchProductByBarcode(barcode).then(product => {
+    if(!product){ resultsEl.innerHTML = '<div class="alt-loading">Could not load that product.</div>'; return; }
+    if(compareActiveSlot === 'A') compareProductA = { barcode, product };
+    else compareProductB = { barcode, product };
+    document.getElementById('comparePicker').style.display = 'none';
+    renderCompareSlots();
+    renderCompareTable();
+  });
+}
+function renderCompareSlots(){
+  ['A','B'].forEach(slot => {
+    const entry = slot === 'A' ? compareProductA : compareProductB;
+    const el = document.getElementById('slot' + slot);
+    if(!entry){
+      el.className = 'compare-slot';
+      el.innerHTML = `+ Add Product ${slot}`;
+      el.onclick = () => openComparePicker(slot);
+      return;
+    }
+    const { score } = computeScore(entry.product);
+    const tier = scoreTier(score);
+    const name = entry.product.product_name || entry.product.product_name_en || 'Unnamed product';
+    el.className = 'compare-slot filled';
+    el.innerHTML = `<div class="compare-slot-score" style="background:${tier.color}">${score}</div><div class="compare-slot-name">${escapeHtml(name)}</div><div class="compare-slot-remove" data-slot="${slot}">Remove</div>`;
+    el.onclick = null;
+    el.querySelector('.compare-slot-remove').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      if(slot === 'A') compareProductA = null; else compareProductB = null;
+      renderCompareSlots();
+      renderCompareTable();
+    });
+  });
+}
+function renderCompareTable(){
+  const tableEl = document.getElementById('compareTable');
+  if(!compareProductA || !compareProductB){ tableEl.innerHTML = ''; return; }
+  const a = compareProductA.product, b = compareProductB.product;
+  const sa = computeScore(a), sb = computeScore(b);
+  const tierA = scoreTier(sa.score), tierB = scoreTier(sb.score);
+  const rows = [
+    ['Swaasth Score', `<b style="color:${tierA.color}">${sa.score}</b>`, `<b style="color:${tierB.color}">${sb.score}</b>`],
+    ['Rating', tierA.tag, tierB.tag],
+    ['Nutri-Score', (a.nutriscore_grade||'?').toUpperCase(), (b.nutriscore_grade||'?').toUpperCase()],
+    ['NOVA Group', a.nova_group || '?', b.nova_group || '?'],
+    ['Sugar/100g', a.nutriments && a.nutriments.sugars_100g != null ? a.nutriments.sugars_100g.toFixed(1)+'g' : '—', b.nutriments && b.nutriments.sugars_100g != null ? b.nutriments.sugars_100g.toFixed(1)+'g' : '—'],
+    ['Sodium/100g', a.nutriments && a.nutriments.sodium_100g != null ? (a.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—', b.nutriments && b.nutriments.sodium_100g != null ? (b.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—'],
+    ['Additives', (a.additives_tags||[]).length, (b.additives_tags||[]).length]
+  ];
+  let html = `<div class="compare-row header"><div class="compare-cell label"></div><div class="compare-cell">${escapeHtml((a.product_name||'A').slice(0,14))}</div><div class="compare-cell">${escapeHtml((b.product_name||'B').slice(0,14))}</div></div>`;
+  rows.forEach(([label, valA, valB]) => {
+    html += `<div class="compare-row"><div class="compare-cell label">${label}</div><div class="compare-cell">${valA}</div><div class="compare-cell">${valB}</div></div>`;
+  });
+  tableEl.innerHTML = html;
+}
+let searchDebounce;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchDebounce);
+  const q = e.target.value.trim();
+  if(q.length < 3){
+    document.getElementById('searchResults').innerHTML = q.length > 0 ? '<div class="alt-loading">Keep typing… (min 3 characters)</div>' : '';
+    return;
+  }
+  searchDebounce = setTimeout(() => runProductSearch(q), 500);
+});
+function runProductSearch(query){
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=20`;
+  fetch(url).then(r => r.json()).then(data => {
+    const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
+    if(products.length === 0){
+      resultsEl.innerHTML = '<div class="alt-loading">No products found. Try a different search term.</div>';
+      return;
+    }
+    resultsEl.innerHTML = '';
+    products.slice(0,20).forEach(p => {
+      const { score } = computeScore(p);
+      const tier = scoreTier(score);
+      const name = p.product_name || p.product_name_en || 'Unnamed product';
+      const brand = p.brands || '';
+      const div = document.createElement('div'); div.className = 'search-item';
+      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(p.code));
+      resultsEl.appendChild(div);
+    });
+  }).catch(() => {
+    resultsEl.innerHTML = '<div class="alt-loading">Search failed. Check your connection and try again.</div>';
+  });
+}
+document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
+document.getElementById('homeFavViewAll').addEventListener('click', () => { renderFavorites(); showScreen('favorites-screen'); });
+function renderHome(){
+  const hist = loadHistory();
+  const firstName = (window.fcUser && window.fcUser.displayName) ? window.fcUser.displayName.split(' ')[0] : 'there';
+  document.getElementById('homeGreet').textContent = `Hi ${firstName}, what are you eating today?`;
+  document.getElementById('statTotal').textContent = hist.length;
+  const avg = hist.length ? Math.round(hist.reduce((s,h) => s + h.score, 0) / hist.length) : null;
+  document.getElementById('statAvg').textContent = avg !== null ? avg : '—';
+  const listEl = document.getElementById('homeRecentList');
+  if(hist.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No scans yet — try your first one!</div>';
+  }else{
+    listEl.innerHTML = '';
+    hist.slice(0,3).forEach(h => {
+      const div = document.createElement('div'); div.className = 'hist-item';
+      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(h.barcode));
+      listEl.appendChild(div);
+    });
+  }
+  const favs = loadFavorites();
+  const favListEl = document.getElementById('homeFavList');
+  if(favs.length === 0){
+    favListEl.innerHTML = '<div class="hist-empty">No favorites yet — tap the ☆ on any product to save it.</div>';
+  }else{
+    favListEl.innerHTML = '';
+    favs.slice(0,3).forEach(f => {
+      const div = document.createElement('div'); div.className = 'hist-item';
+      div.innerHTML = `<div class="hist-score" style="background:${f.color}">${f.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(f.name)}</div><div class="hist-meta">${f.tier}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(f.barcode));
+      favListEl.appendChild(div);
+    });
+  }
+}
+document.getElementById('clearHistBtn').addEventListener('click', () => {
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+});
+const HISTORY_KEY = 'foodcheck_history';
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveToHistory(entry){
+  let hist = loadHistory();
+  hist = hist.filter(h => h.barcode !== entry.barcode);
+  hist.unshift(entry);
+  hist = hist.slice(0, 20);
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+const FAVORITES_KEY = 'foodcheck_favorites';
+function loadFavorites(){
+  try{ return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; }
+  catch(e){ return []; }
+}
+function isFavorited(barcode){
+  return loadFavorites().some(f => f.barcode === barcode);
+}
+function addFavorite(entry){
+  let favs = loadFavorites();
+  favs = favs.filter(f => f.barcode !== entry.barcode);
+  favs.unshift(entry);
+  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
+}
+function removeFavorite(barcode){
+  const favs = loadFavorites().filter(f => f.barcode !== barcode);
+  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
+}
+function renderFavorites(){
+  const favs = loadFavorites();
+  const listEl = document.getElementById('favList');
+  if(favs.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No favorites yet. Tap the ☆ on any scanned product to save it here.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  favs.forEach(f => {
+    const div = document.createElement('div'); div.className = 'fav-item';
+    const info = document.createElement('div'); info.className = 'hist-info';
+    info.innerHTML = `<div class="hist-score" style="display:inline-flex;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;background:${f.color};margin-right:12px;vertical-align:middle;">${f.score}</div><span class="hist-name">${escapeHtml(f.name)}</span><div class="hist-meta">${f.tier}</div>`;
+    info.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;cursor:pointer;';
+    info.addEventListener('click', () => lookupProduct(f.barcode));
+    const removeBtn = document.createElement('button'); removeBtn.className = 'fav-remove'; removeBtn.textContent = '★';
+    removeBtn.title = 'Remove from favorites';
+    removeBtn.addEventListener('click', () => { removeFavorite(f.barcode); renderFavorites(); });
+    div.appendChild(info); div.appendChild(removeBtn);
+    listEl.appendChild(div);
+  });
+}
+document.getElementById('favBtn').addEventListener('click', () => {
+  if(!window.currentProduct) return;
+  const barcode = window.currentProduct.barcode;
+  if(isFavorited(barcode)){
+    removeFavorite(barcode);
+  }else{
+    addFavorite(window.currentProduct);
+  }
+  updateFavBtn(barcode);
+});
+function updateFavBtn(barcode){
+  const btn = document.getElementById('favBtn');
+  const fav = isFavorited(barcode);
+  btn.textContent = fav ? '★' : '☆';
+  btn.classList.toggle('active', fav);
+}
+function renderHistory(){
+  const hist = loadHistory();
+  const listEl = document.getElementById('histList');
+  if(hist.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No scans yet. Products you check will show up here.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  hist.forEach(h => {
+    const div = document.createElement('div'); div.className = 'hist-item';
+    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier} · ${new Date(h.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div></div>`;
+    div.addEventListener('click', () => lookupProduct(h.barcode));
+    listEl.appendChild(div);
+  });
 }
 document.getElementById('manualToggleBtn').addEventListener('click', () => {
   document.getElementById('manualForm').classList.toggle('show');
@@ -125,17 +595,37 @@ document.getElementById('manualSubmit').addEventListener('click', () => {
   const code = document.getElementById('manualInput').value.trim();
   if(code) lookupProduct(code);
 });
-document.getElementById('backBtn').addEventListener('click', () => showScreen('scan-screen'));
-document.getElementById('scanAgainBtn').addEventListener('click', () => showScreen('scan-screen'));
+document.getElementById('backBtn').addEventListener('click', () => showScreen('score-screen'));
+document.getElementById('scanAgainBtn').addEventListener('click', goToScanScreen);
 document.getElementById('breakdownBtn').addEventListener('click', () => showScreen('breakdown-screen'));
 let html5QrCode;
+function goToScanScreen(){
+  showScreen('scan-screen');
+  if(!html5QrCode){
+    startScanner();
+  }else{
+    try{
+      if(html5QrCode.getState() === Html5QrcodeScannerState.PAUSED){ html5QrCode.resume(); }
+    }catch(e){}
+  }
+}
 function startScanner(){
   if (typeof Html5Qrcode === 'undefined') {
     document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera scanner could not load. Use manual entry below instead.</p>';
     return;
   }
-  html5QrCode = new Html5Qrcode("reader");
-  const config = { fps: 10, qrbox: { width: 220, height: 140 } };
+  html5QrCode = new Html5Qrcode("reader", {
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.QR_CODE
+    ],
+    verbose: false,
+    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+  });
+  const config = { fps: 20, qrbox: { width: 280, height: 120 }, aspectRatio: 1.777, disableFlip: true };
   html5QrCode.start(
     { facingMode: "environment" }, config,
     (decodedText) => { html5QrCode.pause(); lookupProduct(decodedText); },
@@ -144,7 +634,90 @@ function startScanner(){
     document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera access denied. Use manual entry below instead.</p>';
   });
 }
-window.addEventListener('load', startScanner);
+window.addEventListener('load', () => {
+  let onboarded = false;
+  try{ onboarded = localStorage.getItem(ONBOARD_KEY) === '1'; }catch(e){}
+  if(onboarded){ goToAppOrLogin(); }
+  else{ renderOnboardStep(); showScreen('onboarding-screen'); }
+});
+const ONBOARD_KEY = 'foodcheck_onboarded';
+const onboardSteps = [
+  { icon:'📷', title:'Scan any barcode', desc:'Point your camera at any packaged food product sold in India to check it instantly.' },
+  { icon:'🩺', title:'Get your Swaasth Score', desc:'A 0–100 rating built from Nutri-Score, NOVA processing group, additives, sugar & sodium levels.' },
+  { icon:'🥗', title:'Track & discover better picks', desc:'Your recent scans are saved so you can revisit them, and we surface healthier alternatives.' }
+];
+let obStep = 0;
+function renderOnboardStep(){
+  const s = onboardSteps[obStep];
+  document.getElementById('obIcon').textContent = s.icon;
+  document.getElementById('obTitle').textContent = s.title;
+  document.getElementById('obDesc').textContent = s.desc;
+  document.getElementById('obNextBtn').textContent = obStep === onboardSteps.length-1 ? 'Get Started' : 'Next';
+  document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obStep));
+}
+document.getElementById('obNextBtn').addEventListener('click', () => {
+  if(obStep < onboardSteps.length - 1){ obStep++; renderOnboardStep(); }
+  else{ finishOnboarding(); }
+});
+document.getElementById('obSkipBtn').addEventListener('click', finishOnboarding);
+function finishOnboarding(){
+  try{ localStorage.setItem(ONBOARD_KEY, '1'); }catch(e){}
+  goToAppOrLogin();
+}
+window.fcAuthQueue = [];
+function goToAppOrLogin(){
+  if(window.fcAuthResolved){ decideAuthScreen(); }
+  else{ window.fcAuthQueue.push(decideAuthScreen); }
+}
+function decideAuthScreen(){
+  if(window.fcUser){ updateUserChip(); showScreen('home-screen'); }
+  else{ showScreen('login-screen'); }
+}
+function updateUserChip(){
+  if(!window.fcUser) return;
+  document.getElementById('userAvatar').src = window.fcUser.photoURL || '';
+  document.getElementById('userName').textContent = (window.fcUser.displayName || 'Account').split(' ')[0];
+}
+document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); });
+document.getElementById('userChip').addEventListener('click', () => showScreen('profile-screen'));
+document.getElementById('settingsBtn').addEventListener('click', () => showScreen('profile-screen'));
+function renderProfile(){
+  const avatarWrap = document.getElementById('profileAvatarWrap');
+  const signInBtn = document.getElementById('profileSignInBtn');
+  const signOutBtn = document.getElementById('profileSignOutBtn');
+  const guestNote = document.getElementById('profileGuestNote');
+  if(window.fcUser){
+    avatarWrap.innerHTML = window.fcUser.photoURL ? `<img src="${window.fcUser.photoURL}" alt="">` : '👤';
+    document.getElementById('profileName').textContent = window.fcUser.displayName || 'Account';
+    document.getElementById('profileEmail').textContent = window.fcUser.email || '';
+    guestNote.style.display = 'none';
+    signInBtn.style.display = 'none';
+    signOutBtn.style.display = 'block';
+  }else{
+    avatarWrap.innerHTML = '👤';
+    document.getElementById('profileName').textContent = 'Guest';
+    document.getElementById('profileEmail').textContent = '';
+    guestNote.style.display = 'block';
+    signInBtn.style.display = 'block';
+    signOutBtn.style.display = 'none';
+  }
+}
+document.getElementById('profileSignOutBtn').addEventListener('click', () => {
+  if(window.fcSignOut) window.fcSignOut();
+});
+document.getElementById('profileSignInBtn').addEventListener('click', () => {
+  showScreen('login-screen');
+});
+document.getElementById('profileClearHistBtn').addEventListener('click', () => {
+  if(confirm('Clear your entire scan history? This cannot be undone.')){
+    localStorage.removeItem(HISTORY_KEY);
+  }
+});
+document.getElementById('profileClearFavBtn').addEventListener('click', () => {
+  if(confirm('Remove all saved favorites? This cannot be undone.')){
+    localStorage.removeItem(FAVORITES_KEY);
+  }
+});
 async function lookupProduct(barcode){
   showScreen('loading-screen');
   try{
@@ -236,7 +809,144 @@ function renderScore(product, barcode){
     div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
     acc.appendChild(div);
   });
+  window.currentProduct = { barcode, name, score, tier: tier.tag, color: tier.color, categories_tags: product.categories_tags || [] };
+  updateFavBtn(barcode);
+  saveToHistory({ barcode, name, score, tier: tier.tag, color: tier.color, ts: Date.now() });
+  const altBtn = document.getElementById('altBtn');
+  altBtn.style.display = (score < 60 && window.currentProduct.categories_tags.length > 0) ? 'block' : 'none';
 }
+document.getElementById('altBtn').addEventListener('click', () => {
+  showScreen('alternatives-screen');
+  loadAlternatives();
+});
+function loadAlternatives(){
+  const listEl = document.getElementById('altList');
+  listEl.innerHTML = '<div class="alt-loading">Looking for better options…</div>';
+  const cats = (window.currentProduct && window.currentProduct.categories_tags) || [];
+  if(cats.length === 0){
+    listEl.innerHTML = '<div class="alt-loading">Not enough category data to suggest alternatives.</div>';
+    return;
+  }
+  const category = cats[cats.length - 1];
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?action=process&json=true&page_size=15&sort_by=nutriscore_score&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(category)}`;
+  fetch(url).then(r => r.json()).then(data => {
+    const currentBarcode = window.currentProduct.barcode;
+    const candidates = (data.products || []).filter(p => p.code !== currentBarcode && (p.product_name || p.product_name_en));
+    const scored = candidates.map(p => {
+      const { score } = computeScore(p);
+      return { p, score };
+    }).filter(x => x.score > window.currentProduct.score).sort((a,b) => b.score - a.score).slice(0,5);
+    if(scored.length === 0){
+      listEl.innerHTML = '<div class="alt-loading">No better-scoring alternatives found in this category yet.</div>';
+      return;
+    }
+    listEl.innerHTML = '';
+    scored.forEach(({p, score}) => {
+      const tier = scoreTier(score);
+      const name = p.product_name || p.product_name_en || 'Unnamed product';
+      const brand = p.brands || '';
+      const div = document.createElement('div'); div.className = 'alt-item';
+      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)} · ${tier.tag}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(p.code));
+      listEl.appendChild(div);
+    });
+  }).catch(() => {
+    listEl.innerHTML = '<div class="alt-loading">Couldn\'t load alternatives right now. Try again later.</div>';
+  });
+}
+
+// --- PWA: service worker + install prompt ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installAppBtn');
+  if (btn) btn.style.display = 'block';
+});
+document.getElementById('installAppBtn').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installAppBtn').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installAppBtn');
+  if (btn) btn.style.display = 'none';
+});
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4KAQzK3mtMcAfnkUlxecXl93dQgjR_rM",
+  authDomain: "foodcheck-india.firebaseapp.com",
+  projectId: "foodcheck-india",
+  storageBucket: "foodcheck-india.firebasestorage.app",
+  messagingSenderId: "848916197751",
+  appId: "1:848916197751:web:c213e5421b7d30c0143172",
+  measurementId: "G-7K6YVH2K32"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const GOOGLE_CLIENT_ID = "848916197751-jddvi29suvhicc84u6bt1tluk5or5b34.apps.googleusercontent.com";
+
+window.fcSignOut = () => signOut(auth);
+
+function handleCredentialResponse(response) {
+  const credential = GoogleAuthProvider.credential(response.credential);
+  signInWithCredential(auth, credential).catch((err) => {
+    console.error('Sign-in error:', err);
+    alert('Sign-in failed: ' + err.message);
+  });
+}
+
+function initGoogleButton() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    setTimeout(initGoogleButton, 150);
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  const container = document.getElementById('gButtonContainer');
+  if (container) {
+    google.accounts.id.renderButton(container, {
+      theme: 'outline', size: 'large', shape: 'pill', width: 280, text: 'signin_with'
+    });
+  }
+}
+initGoogleButton();
+
+onAuthStateChanged(auth, (user) => {
+  const wasResolved = window.fcAuthResolved;
+  window.fcUser = user;
+  window.fcAuthResolved = true;
+
+  if (!wasResolved) {
+    // First resolution after page load — let the queued app-flow decision run.
+    (window.fcAuthQueue || []).forEach(fn => fn());
+    window.fcAuthQueue = [];
+  } else {
+    // A later change — user just signed in or out via a button click.
+    if (user) {
+      window.updateUserChip && window.updateUserChip();
+      window.showScreen && window.showScreen('home-screen');
+    } else {
+      window.showScreen && window.showScreen('login-screen');
+    }
+  }
+});
 </script>
 </body>
 </html>
