@@ -86,6 +86,19 @@
   .home-fav-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
   .home-fav-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
   .home-fav-list{margin-top:12px;}
+  .settings-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
+  #profile-screen{padding:30px 24px;align-items:center;text-align:center;}
+  .profile-avatar{width:76px;height:76px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:28px;overflow:hidden;}
+  .profile-avatar img{width:100%;height:100%;object-fit:cover;}
+  .profile-name{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;margin-top:14px;}
+  .profile-email{font-size:12px;color:#8A8A78;margin-top:2px;}
+  .profile-guest-note{font-size:12px;color:#8A8A78;margin-top:10px;line-height:1.6;padding:0 10px;}
+  .profile-actions{width:100%;margin-top:28px;display:flex;flex-direction:column;gap:10px;}
+  .profile-btn{padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;}
+  .profile-btn.neutral{background:#fff;border:1px solid #DFD9C4;color:#1A1A1A;}
+  .profile-btn.danger{background:#fff;border:1px solid #F2D2CB;color:var(--red);}
+  .profile-btn.primary{background:var(--indigo);color:#fff;border:none;}
+  .profile-version{margin-top:24px;font-size:10.5px;color:#B8B2A0;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
@@ -129,7 +142,8 @@
 <div id="app">
   <div class="topbar">
     <div class="brand">FoodCheck<span>India</span></div>
-    <div class="user-chip" id="userChip" title="Sign out"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
+    <div class="user-chip" id="userChip" title="Profile"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
+    <button class="settings-btn" id="settingsBtn" title="Profile & Settings">⚙️</button>
     <button class="home-btn" id="homeBtn" title="Home">🏠</button>
     <button class="back-btn" id="backBtn">← Back</button>
   </div>
@@ -205,15 +219,30 @@
     <div class="fav-head">Your Favorites</div>
     <div class="fav-list" id="favList"></div>
   </div>
+  <div class="screen" id="profile-screen">
+    <div class="profile-avatar" id="profileAvatarWrap">👤</div>
+    <div class="profile-name" id="profileName">Guest</div>
+    <div class="profile-email" id="profileEmail"></div>
+    <div class="profile-guest-note" id="profileGuestNote" style="display:none;">You're using FoodCheck India as a guest. Sign in with Google to personalize your account.</div>
+    <div class="profile-actions">
+      <div class="profile-btn primary" id="profileSignInBtn" style="display:none;">Sign in with Google</div>
+      <div class="profile-btn neutral" id="profileClearHistBtn">Clear scan history</div>
+      <div class="profile-btn neutral" id="profileClearFavBtn">Clear all favorites</div>
+      <div class="profile-btn danger" id="profileSignOutBtn" style="display:none;">Sign out</div>
+    </div>
+    <div class="profile-version">FoodCheck India · Need help? <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);">Contact support</a></div>
+  </div>
 </div>
 <script>
-const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen'];
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
   document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
-  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen') ? 'block' : 'none';
   document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
+  document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
   if(id==='home-screen'){ renderHome(); }
+  if(id==='profile-screen'){ renderProfile(); }
 }
 document.getElementById('homeBtn').addEventListener('click', () => showScreen('home-screen'));
 document.getElementById('homeScanBtn').addEventListener('click', goToScanScreen);
@@ -439,8 +468,44 @@ function updateUserChip(){
   document.getElementById('userName').textContent = (window.fcUser.displayName || 'Account').split(' ')[0];
 }
 document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); });
-document.getElementById('userChip').addEventListener('click', () => {
+document.getElementById('userChip').addEventListener('click', () => showScreen('profile-screen'));
+document.getElementById('settingsBtn').addEventListener('click', () => showScreen('profile-screen'));
+function renderProfile(){
+  const avatarWrap = document.getElementById('profileAvatarWrap');
+  const signInBtn = document.getElementById('profileSignInBtn');
+  const signOutBtn = document.getElementById('profileSignOutBtn');
+  const guestNote = document.getElementById('profileGuestNote');
+  if(window.fcUser){
+    avatarWrap.innerHTML = window.fcUser.photoURL ? `<img src="${window.fcUser.photoURL}" alt="">` : '👤';
+    document.getElementById('profileName').textContent = window.fcUser.displayName || 'Account';
+    document.getElementById('profileEmail').textContent = window.fcUser.email || '';
+    guestNote.style.display = 'none';
+    signInBtn.style.display = 'none';
+    signOutBtn.style.display = 'block';
+  }else{
+    avatarWrap.innerHTML = '👤';
+    document.getElementById('profileName').textContent = 'Guest';
+    document.getElementById('profileEmail').textContent = '';
+    guestNote.style.display = 'block';
+    signInBtn.style.display = 'block';
+    signOutBtn.style.display = 'none';
+  }
+}
+document.getElementById('profileSignOutBtn').addEventListener('click', () => {
   if(window.fcSignOut) window.fcSignOut();
+});
+document.getElementById('profileSignInBtn').addEventListener('click', () => {
+  showScreen('login-screen');
+});
+document.getElementById('profileClearHistBtn').addEventListener('click', () => {
+  if(confirm('Clear your entire scan history? This cannot be undone.')){
+    localStorage.removeItem(HISTORY_KEY);
+  }
+});
+document.getElementById('profileClearFavBtn').addEventListener('click', () => {
+  if(confirm('Remove all saved favorites? This cannot be undone.')){
+    localStorage.removeItem(FAVORITES_KEY);
+  }
 });
 async function lookupProduct(barcode){
   showScreen('loading-screen');
