@@ -99,6 +99,13 @@
   .profile-btn.danger{background:#fff;border:1px solid #F2D2CB;color:var(--red);}
   .profile-btn.primary{background:var(--indigo);color:#fff;border:none;}
   .profile-version{margin-top:24px;font-size:10.5px;color:#B8B2A0;}
+  .alt-btn{margin:0 18px 14px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;background:#EEF6EC;color:var(--leaf);border:1px solid #CFE7CB;display:none;}
+  .alt-head{padding:16px 18px;background:var(--leaf);color:#fff;}
+  .alt-head .k{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;}
+  .alt-head .v{font-size:11px;opacity:.9;margin-top:3px;}
+  .alt-list{padding:14px 18px;overflow-y:auto;flex:1;}
+  .alt-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
+  .alt-loading{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
@@ -203,8 +210,13 @@
     </div>
     <div class="pills" id="pillsRow"></div>
     <div class="list" id="listRows"></div>
+    <div class="alt-btn" id="altBtn">🥗 See Healthier Alternatives</div>
     <div class="breakdown-btn" id="breakdownBtn">See full ingredient breakdown</div>
     <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
+  </div>
+  <div class="screen" id="alternatives-screen">
+    <div class="alt-head"><div class="k">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
+    <div class="alt-list" id="altList"></div>
   </div>
   <div class="screen" id="breakdown-screen">
     <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
@@ -234,11 +246,11 @@
   </div>
 </div>
 <script>
-const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen'];
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
   document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
-  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen') ? 'block' : 'none';
   document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
   document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
   if(id==='home-screen'){ renderHome(); }
@@ -598,9 +610,50 @@ function renderScore(product, barcode){
     div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
     acc.appendChild(div);
   });
-  window.currentProduct = { barcode, name, score, tier: tier.tag, color: tier.color };
+  window.currentProduct = { barcode, name, score, tier: tier.tag, color: tier.color, categories_tags: product.categories_tags || [] };
   updateFavBtn(barcode);
   saveToHistory({ barcode, name, score, tier: tier.tag, color: tier.color, ts: Date.now() });
+  const altBtn = document.getElementById('altBtn');
+  altBtn.style.display = (score < 60 && window.currentProduct.categories_tags.length > 0) ? 'block' : 'none';
+}
+document.getElementById('altBtn').addEventListener('click', () => {
+  showScreen('alternatives-screen');
+  loadAlternatives();
+});
+function loadAlternatives(){
+  const listEl = document.getElementById('altList');
+  listEl.innerHTML = '<div class="alt-loading">Looking for better options…</div>';
+  const cats = (window.currentProduct && window.currentProduct.categories_tags) || [];
+  if(cats.length === 0){
+    listEl.innerHTML = '<div class="alt-loading">Not enough category data to suggest alternatives.</div>';
+    return;
+  }
+  const category = cats[cats.length - 1];
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?action=process&json=true&page_size=15&sort_by=nutriscore_score&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(category)}`;
+  fetch(url).then(r => r.json()).then(data => {
+    const currentBarcode = window.currentProduct.barcode;
+    const candidates = (data.products || []).filter(p => p.code !== currentBarcode && (p.product_name || p.product_name_en));
+    const scored = candidates.map(p => {
+      const { score } = computeScore(p);
+      return { p, score };
+    }).filter(x => x.score > window.currentProduct.score).sort((a,b) => b.score - a.score).slice(0,5);
+    if(scored.length === 0){
+      listEl.innerHTML = '<div class="alt-loading">No better-scoring alternatives found in this category yet.</div>';
+      return;
+    }
+    listEl.innerHTML = '';
+    scored.forEach(({p, score}) => {
+      const tier = scoreTier(score);
+      const name = p.product_name || p.product_name_en || 'Unnamed product';
+      const brand = p.brands || '';
+      const div = document.createElement('div'); div.className = 'alt-item';
+      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)} · ${tier.tag}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(p.code));
+      listEl.appendChild(div);
+    });
+  }).catch(() => {
+    listEl.innerHTML = '<div class="alt-loading">Couldn\'t load alternatives right now. Try again later.</div>';
+  });
 }
 </script>
 <script type="module">
