@@ -106,6 +106,11 @@
   .alt-list{padding:14px 18px;overflow-y:auto;flex:1;}
   .alt-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
   .alt-loading{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
+  #search-screen{padding:0;}
+  .search-head{padding:14px 18px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .search-head input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #DFD9C4;font-size:14px;background:var(--paper);}
+  .search-results{flex:1;overflow-y:auto;padding:12px 18px;}
+  .search-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
@@ -162,6 +167,7 @@
     </div>
     <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
     <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
+    <div class="home-cta-secondary" id="homeSearchBtn">🔍 Search by product name</div>
     <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
     <div class="home-recent-list" id="homeRecentList"></div>
     <div class="home-fav-head">Your Favorites <span id="homeFavViewAll">View all</span></div>
@@ -218,6 +224,12 @@
     <div class="alt-head"><div class="k">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
     <div class="alt-list" id="altList"></div>
   </div>
+  <div class="screen" id="search-screen">
+    <div class="search-head">
+      <input type="text" id="searchInput" placeholder="e.g. Maggi noodles, Britannia biscuits" inputmode="search">
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
   <div class="screen" id="breakdown-screen">
     <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
     <div class="accordion" id="accordionList"></div>
@@ -246,11 +258,11 @@
   </div>
 </div>
 <script>
-const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen'];
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen','search-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
   document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
-  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen'||id==='search-screen') ? 'block' : 'none';
   document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
   document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
   if(id==='home-screen'){ renderHome(); }
@@ -263,6 +275,47 @@ document.getElementById('homeManualBtn').addEventListener('click', () => {
   document.getElementById('manualForm').classList.add('show');
   document.getElementById('manualInput').focus();
 });
+document.getElementById('homeSearchBtn').addEventListener('click', () => {
+  showScreen('search-screen');
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+});
+let searchDebounce;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchDebounce);
+  const q = e.target.value.trim();
+  if(q.length < 3){
+    document.getElementById('searchResults').innerHTML = q.length > 0 ? '<div class="alt-loading">Keep typing… (min 3 characters)</div>' : '';
+    return;
+  }
+  searchDebounce = setTimeout(() => runProductSearch(q), 500);
+});
+function runProductSearch(query){
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
+  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=20`;
+  fetch(url).then(r => r.json()).then(data => {
+    const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
+    if(products.length === 0){
+      resultsEl.innerHTML = '<div class="alt-loading">No products found. Try a different search term.</div>';
+      return;
+    }
+    resultsEl.innerHTML = '';
+    products.slice(0,20).forEach(p => {
+      const { score } = computeScore(p);
+      const tier = scoreTier(score);
+      const name = p.product_name || p.product_name_en || 'Unnamed product';
+      const brand = p.brands || '';
+      const div = document.createElement('div'); div.className = 'search-item';
+      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(p.code));
+      resultsEl.appendChild(div);
+    });
+  }).catch(() => {
+    resultsEl.innerHTML = '<div class="alt-loading">Search failed. Check your connection and try again.</div>';
+  });
+}
 document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
 document.getElementById('homeFavViewAll').addEventListener('click', () => { renderFavorites(); showScreen('favorites-screen'); });
 function renderHome(){
