@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{--indigo:#161B33;--indigo-2:#232B52;--turmeric:#F0A93C;--saffron:#E2582A;--leaf:#4E9A55;--paper:#F5F1E6;--amber-dim:#8C6A2E;--red:#D14545;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -109,6 +110,8 @@
   .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
   .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
   .home-recent-list{margin-top:12px;}
+  .home-support{margin-top:24px;text-align:center;font-size:11.5px;color:#8A8A78;}
+  .home-support a{color:var(--saffron);text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -128,6 +131,7 @@
     <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
     <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
     <div class="home-recent-list" id="homeRecentList"></div>
+    <div class="home-support">Need help? <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
   </div>
   <div class="screen active" id="onboarding-screen">
     <div class="ob-icon" id="obIcon">📷</div>
@@ -141,10 +145,7 @@
     <div class="login-icon">🇮🇳</div>
     <div class="login-title">Sign in to FoodCheck India</div>
     <div class="login-desc">Sign in with Google to personalize your FoodCheck India experience.</div>
-    <button class="google-btn" id="googleSignInBtn">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.3 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 5 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7 29.6 5 24 5c-7.9 0-14.7 4.5-18.2 11z" transform="translate(0 -2)"/><path fill="#4CAF50" d="M24 43c5.5 0 10.4-1.8 14.1-4.9l-6.5-5.5C29.6 34.4 27 35 24 35c-5.3 0-9.7-2.7-11.3-7l-6.6 5.1C9.3 39.5 16 43 24 43z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.3 5.5l6.5 5.5C41 36 44 30.5 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
-      Sign in with Google
-    </button>
+    <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
     <button class="guest-btn" id="guestBtn">Continue as guest</button>
   </div>
   <div class="screen" id="scan-screen">
@@ -445,7 +446,7 @@ function renderScore(product, barcode){
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4KAQzK3mtMcAfnkUlxecXl93dQgjR_rM",
@@ -459,18 +460,35 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+const GOOGLE_CLIENT_ID = "848916197751-jddvi29suvhicc84u6bt1tluk5or5b34.apps.googleusercontent.com";
 
 window.fcSignOut = () => signOut(auth);
 
-document.getElementById('googleSignInBtn').addEventListener('click', () => {
-  signInWithRedirect(auth, provider);
-});
+function handleCredentialResponse(response) {
+  const credential = GoogleAuthProvider.credential(response.credential);
+  signInWithCredential(auth, credential).catch((err) => {
+    console.error('Sign-in error:', err);
+    alert('Sign-in failed: ' + err.message);
+  });
+}
 
-getRedirectResult(auth).catch((err) => {
-  console.error('Redirect sign-in error:', err);
-  alert('Sign-in failed: ' + err.message);
-});
+function initGoogleButton() {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    setTimeout(initGoogleButton, 150);
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  const container = document.getElementById('gButtonContainer');
+  if (container) {
+    google.accounts.id.renderButton(container, {
+      theme: 'outline', size: 'large', shape: 'pill', width: 280, text: 'signin_with'
+    });
+  }
+}
+initGoogleButton();
 
 onAuthStateChanged(auth, (user) => {
   const wasResolved = window.fcAuthResolved;
