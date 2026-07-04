@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FoodCheck India</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  :root{--indigo:#161B33;--indigo-2:#232B52;--turmeric:#F0A93C;--saffron:#E2582A;--leaf:#4E9A55;--paper:#F5F1E6;--amber-dim:#8C6A2E;--red:#D14545;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--indigo);font-family:'Inter',sans-serif;color:#1A1A1A;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px 12px;}
+  #app{width:100%;max-width:400px;background:var(--paper);border-radius:24px;overflow:hidden;min-height:640px;box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;}
+  .topbar{background:var(--indigo);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;}
+  .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;}
+  .brand span{color:var(--turmeric);}
+  .back-btn{background:none;border:none;color:#fff;font-size:14px;cursor:pointer;display:none;}
+  .hist-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
+  .hist-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .hist-list{flex:1;overflow-y:auto;padding:12px 18px;}
+  .hist-empty{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
+  .hist-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;cursor:pointer;}
+  .hist-score{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
+  .hist-info{flex:1;min-width:0;}
+  .hist-name{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hist-meta{font-size:11px;color:#8A8A78;margin-top:2px;}
+  .clear-hist-btn{margin:0 18px 16px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--red);border:1px solid #F2D2CB;}
+  .screen{flex:1;display:none;flex-direction:column;}
+  .screen.active{display:flex;}
+  #scan-screen{flex:1;}
+  #reader{width:100%;background:#000;min-height:280px;}
+  #reader video{border-radius:0 !important;}
+  .scan-hint{text-align:center;color:#8A8A78;font-size:12px;padding:14px 20px 6px;}
+  .manual-toggle{text-align:center;padding:8px 20px 16px;}
+  .manual-toggle button{background:none;border:none;color:var(--saffron);font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:underline;}
+  .manual-form{display:none;padding:0 20px 20px;gap:10px;flex-direction:column;}
+  .manual-form.show{display:flex;}
+  .manual-form input{padding:12px 14px;border-radius:10px;border:1px solid #DFD9C4;font-size:14px;background:#fff;}
+  .manual-form button{background:var(--indigo);color:#fff;border:none;padding:12px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  #loading-screen{align-items:center;justify-content:center;gap:14px;padding:40px;}
+  .spinner{width:38px;height:38px;border-radius:50%;border:3px solid #E4DEC9;border-top-color:var(--saffron);animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #loading-screen p{font-size:13px;color:#8A8A78;}
+  .score-top{padding:16px 18px 8px;display:flex;align-items:center;gap:10px;}
+  .badge-fssai{font-size:9px;font-weight:700;letter-spacing:.04em;background:#E8F3E3;color:var(--leaf);padding:3px 7px;border-radius:20px;}
+  .prod-name{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin-top:8px;}
+  .prod-sub{font-size:11.5px;color:#8A8A78;margin-top:2px;}
+  .dial-wrap{display:flex;flex-direction:column;align-items:center;padding:16px 0 8px;}
+  .dial{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .dial-inner{width:110px;height:110px;border-radius:50%;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .dial-num{font-family:'Sora',sans-serif;font-weight:800;font-size:32px;}
+  .dial-tag{font-size:10.5px;color:#8A8A78;text-transform:uppercase;letter-spacing:.06em;}
+  .swaasth-label{font-family:'Sora',sans-serif;font-size:12.5px;font-weight:700;margin-top:10px;color:#4A4A3E;}
+  .pills{display:flex;gap:8px;padding:14px 18px;flex-wrap:wrap;}
+  .pill{font-size:10.5px;font-weight:600;padding:5px 10px;border-radius:20px;background:#fff;border:1px solid #E4DEC9;}
+  .pill.warn{color:var(--saffron);border-color:#F2D2BB;background:#FCF0E6;}
+  .pill.good{color:var(--leaf);border-color:#CFE7CB;background:#EEF6EC;}
+  .list{background:#fff;border-top:1px solid #E9E3D0;padding:14px 18px 16px;}
+  .list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:12.5px;border-bottom:1px solid #F0ECDD;}
+  .list-row:last-child{border-bottom:none;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;}
+  .dot.r{background:var(--red);} .dot.g{background:var(--leaf);} .dot.y{background:var(--turmeric);}
+  .breakdown-btn,.scan-again-btn{margin:14px 18px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .breakdown-btn{background:var(--saffron);color:#fff;}
+  .scan-again-btn{background:var(--indigo);color:#fff;}
+  .bd-head{padding:16px 18px;background:var(--saffron);color:#fff;}
+  .bd-head .k{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;}
+  .bd-head .v{font-size:11px;opacity:.9;margin-top:3px;}
+  .accordion{padding:14px 18px;overflow-y:auto;}
+  .acc-item{background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .acc-item .t{font-family:'Sora',sans-serif;font-size:12.5px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+  .acc-item .d{font-size:11.5px;color:#7A7A68;margin-top:6px;line-height:1.5;}
+  .risk-tag{font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;white-space:nowrap;}
+  .risk-high{background:#FBE2DE;color:var(--red);}
+  .risk-mod{background:#FCEAD1;color:var(--amber-dim);}
+  .risk-low{background:#E8F3E3;color:var(--leaf);}
+  #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
+  #notfound-screen .icon{font-size:34px;}
+  #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
+  #notfound-screen p{font-size:12px;color:#8A8A78;line-height:1.5;}
+  #onboarding-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
+  .ob-icon{font-size:52px;margin-bottom:10px;}
+  .ob-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#1A1A1A;}
+  .ob-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:10px;padding:0 8px;}
+  .ob-dots{display:flex;gap:6px;margin-top:26px;}
+  .ob-dot{width:7px;height:7px;border-radius:50%;background:#DFD9C4;}
+  .ob-dot.on{background:var(--saffron);width:18px;border-radius:4px;}
+  .ob-next{margin-top:26px;width:100%;background:var(--indigo);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+  .ob-skip{margin-top:12px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
+  #login-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
+  .login-icon{font-size:48px;margin-bottom:6px;}
+  .login-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
+  .login-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:8px;padding:0 6px;}
+  .google-btn{margin-top:28px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #DFD9C4;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:#1A1A1A;}
+  .google-btn svg{width:18px;height:18px;}
+  .guest-btn{margin-top:14px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
+  .user-chip{display:none;align-items:center;gap:6px;cursor:pointer;}
+  .user-chip img{width:26px;height:26px;border-radius:50%;}
+  .user-chip span{font-size:11.5px;font-weight:600;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .home-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;display:none;}
+  #home-screen{padding:20px 18px;overflow-y:auto;}
+  .home-greet{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#1A1A1A;line-height:1.4;}
+  .home-stats{display:flex;gap:10px;margin-top:16px;}
+  .stat-card{flex:1;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:14px;text-align:center;}
+  .stat-num{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);}
+  .stat-label{font-size:10.5px;color:#8A8A78;margin-top:4px;}
+  .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
+  .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
+  .home-recent-list{margin-top:12px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">FoodCheck<span>India</span></div>
+    <div class="user-chip" id="userChip" title="Sign out"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
+    <button class="home-btn" id="homeBtn" title="Home">🏠</button>
+    <button class="back-btn" id="backBtn">← Back</button>
+  </div>
+  <div class="screen" id="home-screen">
+    <div class="home-greet" id="homeGreet">Welcome!</div>
+    <div class="home-stats">
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Products scanned</div></div>
+      <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label">Avg Swaasth Score</div></div>
+    </div>
+    <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
+    <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
+    <div class="home-recent-list" id="homeRecentList"></div>
+  </div>
+  <div class="screen active" id="onboarding-screen">
+    <div class="ob-icon" id="obIcon">📷</div>
+    <div class="ob-title" id="obTitle">Scan any barcode</div>
+    <div class="ob-desc" id="obDesc">Point your camera at any packaged food product sold in India to check it instantly.</div>
+    <div class="ob-dots"><span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+    <button class="ob-next" id="obNextBtn">Next</button>
+    <button class="ob-skip" id="obSkipBtn">Skip</button>
+  </div>
+  <div class="screen" id="login-screen">
+    <div class="login-icon">🇮🇳</div>
+    <div class="login-title">Sign in to FoodCheck India</div>
+    <div class="login-desc">Sign in with Google to personalize your FoodCheck India experience.</div>
+    <button class="google-btn" id="googleSignInBtn">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.3 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 5 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.6 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 7 29.6 5 24 5c-7.9 0-14.7 4.5-18.2 11z" transform="translate(0 -2)"/><path fill="#4CAF50" d="M24 43c5.5 0 10.4-1.8 14.1-4.9l-6.5-5.5C29.6 34.4 27 35 24 35c-5.3 0-9.7-2.7-11.3-7l-6.6 5.1C9.3 39.5 16 43 24 43z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.3 5.5l6.5 5.5C41 36 44 30.5 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <button class="guest-btn" id="guestBtn">Continue as guest</button>
+  </div>
+  <div class="screen" id="scan-screen">
+    <div id="reader"></div>
+    <p class="scan-hint">Point your camera at a barcode</p>
+    <div class="manual-toggle"><button id="manualToggleBtn">or type a barcode number manually</button></div>
+    <div class="manual-form" id="manualForm">
+      <input type="text" id="manualInput" placeholder="e.g. 8901058851397" inputmode="numeric">
+      <button id="manualSubmit">Check product</button>
+    </div>
+  </div>
+  <div class="screen" id="loading-screen"><div class="spinner"></div><p>Looking up product…</p></div>
+  <div class="screen" id="notfound-screen">
+    <div class="icon">📦</div>
+    <h3>Not in our database yet</h3>
+    <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
+  </div>
+  <div class="screen" id="score-screen">
+    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span></div>
+    <div style="padding:0 18px;">
+      <div class="prod-name" id="prodName">—</div>
+      <div class="prod-sub" id="prodSub">—</div>
+    </div>
+    <div class="dial-wrap">
+      <div class="dial" id="dial"><div class="dial-inner"><div class="dial-num" id="dialNum">—</div><div class="dial-tag" id="dialTag">—</div></div></div>
+      <div class="swaasth-label">Swaasth Score</div>
+    </div>
+    <div class="pills" id="pillsRow"></div>
+    <div class="list" id="listRows"></div>
+    <div class="breakdown-btn" id="breakdownBtn">See full ingredient breakdown</div>
+    <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
+  </div>
+  <div class="screen" id="breakdown-screen">
+    <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
+    <div class="accordion" id="accordionList"></div>
+  </div>
+  <div class="screen" id="history-screen">
+    <div class="hist-head">Recent scans</div>
+    <div class="hist-list" id="histList"></div>
+    <div class="clear-hist-btn" id="clearHistBtn">Clear history</div>
+  </div>
+</div>
+<script>
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen'];
+function showScreen(id){
+  screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
+  document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen') ? 'block' : 'none';
+  document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
+  if(id==='home-screen'){ renderHome(); }
+}
+document.getElementById('homeBtn').addEventListener('click', () => showScreen('home-screen'));
+document.getElementById('homeScanBtn').addEventListener('click', goToScanScreen);
+document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
+function renderHome(){
+  const hist = loadHistory();
+  const firstName = (window.fcUser && window.fcUser.displayName) ? window.fcUser.displayName.split(' ')[0] : 'there';
+  document.getElementById('homeGreet').textContent = `Hi ${firstName}, what are you eating today?`;
+  document.getElementById('statTotal').textContent = hist.length;
+  const avg = hist.length ? Math.round(hist.reduce((s,h) => s + h.score, 0) / hist.length) : null;
+  document.getElementById('statAvg').textContent = avg !== null ? avg : '—';
+  const listEl = document.getElementById('homeRecentList');
+  if(hist.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No scans yet — try your first one!</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  hist.slice(0,3).forEach(h => {
+    const div = document.createElement('div'); div.className = 'hist-item';
+    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+    div.addEventListener('click', () => lookupProduct(h.barcode));
+    listEl.appendChild(div);
+  });
+}
+document.getElementById('clearHistBtn').addEventListener('click', () => {
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+});
+const HISTORY_KEY = 'foodcheck_history';
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveToHistory(entry){
+  let hist = loadHistory();
+  hist = hist.filter(h => h.barcode !== entry.barcode);
+  hist.unshift(entry);
+  hist = hist.slice(0, 20);
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+function renderHistory(){
+  const hist = loadHistory();
+  const listEl = document.getElementById('histList');
+  if(hist.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No scans yet. Products you check will show up here.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  hist.forEach(h => {
+    const div = document.createElement('div'); div.className = 'hist-item';
+    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier} · ${new Date(h.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div></div>`;
+    div.addEventListener('click', () => lookupProduct(h.barcode));
+    listEl.appendChild(div);
+  });
+}
+document.getElementById('manualToggleBtn').addEventListener('click', () => {
+  document.getElementById('manualForm').classList.toggle('show');
+});
+document.getElementById('manualSubmit').addEventListener('click', () => {
+  const code = document.getElementById('manualInput').value.trim();
+  if(code) lookupProduct(code);
+});
+document.getElementById('backBtn').addEventListener('click', () => showScreen('score-screen'));
+document.getElementById('scanAgainBtn').addEventListener('click', goToScanScreen);
+document.getElementById('breakdownBtn').addEventListener('click', () => showScreen('breakdown-screen'));
+let html5QrCode;
+function goToScanScreen(){
+  showScreen('scan-screen');
+  if(!html5QrCode){
+    startScanner();
+  }else{
+    try{
+      if(html5QrCode.getState() === Html5QrcodeScannerState.PAUSED){ html5QrCode.resume(); }
+    }catch(e){}
+  }
+}
+function startScanner(){
+  if (typeof Html5Qrcode === 'undefined') {
+    document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera scanner could not load. Use manual entry below instead.</p>';
+    return;
+  }
+  html5QrCode = new Html5Qrcode("reader", {
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.QR_CODE
+    ],
+    verbose: false,
+    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+  });
+  const config = { fps: 20, qrbox: { width: 280, height: 120 }, aspectRatio: 1.777, disableFlip: true };
+  html5QrCode.start(
+    { facingMode: "environment" }, config,
+    (decodedText) => { html5QrCode.pause(); lookupProduct(decodedText); },
+    (errorMessage) => {}
+  ).catch((err) => {
+    document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera access denied. Use manual entry below instead.</p>';
+  });
+}
+window.addEventListener('load', () => {
+  let onboarded = false;
+  try{ onboarded = localStorage.getItem(ONBOARD_KEY) === '1'; }catch(e){}
+  if(onboarded){ goToAppOrLogin(); }
+  else{ renderOnboardStep(); showScreen('onboarding-screen'); }
+});
+const ONBOARD_KEY = 'foodcheck_onboarded';
+const onboardSteps = [
+  { icon:'📷', title:'Scan any barcode', desc:'Point your camera at any packaged food product sold in India to check it instantly.' },
+  { icon:'🩺', title:'Get your Swaasth Score', desc:'A 0–100 rating built from Nutri-Score, NOVA processing group, additives, sugar & sodium levels.' },
+  { icon:'🥗', title:'Track & discover better picks', desc:'Your recent scans are saved so you can revisit them, and we surface healthier alternatives.' }
+];
+let obStep = 0;
+function renderOnboardStep(){
+  const s = onboardSteps[obStep];
+  document.getElementById('obIcon').textContent = s.icon;
+  document.getElementById('obTitle').textContent = s.title;
+  document.getElementById('obDesc').textContent = s.desc;
+  document.getElementById('obNextBtn').textContent = obStep === onboardSteps.length-1 ? 'Get Started' : 'Next';
+  document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obStep));
+}
+document.getElementById('obNextBtn').addEventListener('click', () => {
+  if(obStep < onboardSteps.length - 1){ obStep++; renderOnboardStep(); }
+  else{ finishOnboarding(); }
+});
+document.getElementById('obSkipBtn').addEventListener('click', finishOnboarding);
+function finishOnboarding(){
+  try{ localStorage.setItem(ONBOARD_KEY, '1'); }catch(e){}
+  goToAppOrLogin();
+}
+window.fcAuthQueue = [];
+function goToAppOrLogin(){
+  if(window.fcAuthResolved){ decideAuthScreen(); }
+  else{ window.fcAuthQueue.push(decideAuthScreen); }
+}
+function decideAuthScreen(){
+  if(window.fcUser){ updateUserChip(); showScreen('home-screen'); }
+  else{ showScreen('login-screen'); }
+}
+function updateUserChip(){
+  if(!window.fcUser) return;
+  document.getElementById('userAvatar').src = window.fcUser.photoURL || '';
+  document.getElementById('userName').textContent = (window.fcUser.displayName || 'Account').split(' ')[0];
+}
+document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); });
+document.getElementById('userChip').addEventListener('click', () => {
+  if(window.fcSignOut) window.fcSignOut();
+});
+async function lookupProduct(barcode){
+  showScreen('loading-screen');
+  try{
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+    const data = await res.json();
+    if(data.status !== 1){ showNotFound("This barcode isn't in Open Food Facts' database yet."); resumeScannerLater(); return; }
+    renderScore(data.product, barcode);
+    showScreen('score-screen');
+  }catch(e){
+    showNotFound('Network error: ' + e.message);
+    resumeScannerLater();
+  }
+}
+function showNotFound(msg){ document.getElementById('notfoundMsg').textContent = msg; showScreen('notfound-screen'); }
+function resumeScannerLater(){
+  setTimeout(() => {
+    if(typeof Html5Qrcode === 'undefined' || !html5QrCode) return;
+    if(html5QrCode.getState() === Html5QrcodeScannerState.PAUSED){ html5QrCode.resume(); }
+  }, 2500);
+}
+function computeScore(product){
+  let score = 60;
+  const flags = []; const goodFlags = [];
+  const nutri = (product.nutriscore_grade || '').toLowerCase();
+  const nutriMap = { a: 25, b: 12, c: 0, d: -12, e: -25 };
+  if(nutri in nutriMap) score += nutriMap[nutri];
+  const nova = product.nova_group;
+  if(nova === 4){ score -= 15; flags.push({t:'Ultra-processed (NOVA 4)', risk:'high', d:'Highly industrial formulation with additives rarely used in home cooking.'}); }
+  else if(nova === 3){ score -= 6; flags.push({t:'Processed food (NOVA 3)', risk:'mod', d:'Contains added oil, sugar or salt beyond the raw product.'}); }
+  else if(nova === 1 || nova === 2){ goodFlags.push('Minimally processed'); }
+  const additives = product.additives_tags || [];
+  if(additives.length > 4){ score -= 10; flags.push({t:`${additives.length} additives detected`, risk:'high', d:'A high additive count often signals a heavily engineered product.'}); }
+  else if(additives.length > 0){ score -= 4; flags.push({t:`${additives.length} additive(s) detected`, risk:'mod', d:'Present within typical packaged-food range.'}); }
+  else{ goodFlags.push('No additives listed'); }
+  const sodium = product.nutriments && product.nutriments.sodium_100g;
+  if(sodium != null){
+    if(sodium > 0.6){ score -= 10; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'high', d:'High sodium. ICMR recommends under 2000mg total sodium per day.'}); }
+    else if(sodium > 0.3){ score -= 3; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'mod', d:'Moderate sodium level.'}); }
+    else{ goodFlags.push('Low sodium'); }
+  }
+  const sugar = product.nutriments && product.nutriments.sugars_100g;
+  if(sugar != null){
+    if(sugar > 22.5){ score -= 8; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'high', d:'High sugar under front-of-pack thresholds (>22.5g/100g).'}); }
+    else if(sugar > 5){ score -= 2; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'mod', d:'Moderate sugar content.'}); }
+    else{ goodFlags.push('Low sugar'); }
+  }
+  const labels = (product.labels || '').toLowerCase();
+  if(labels.includes('organic')){ score += 8; goodFlags.push('Organic certified'); }
+  score = Math.max(2, Math.min(98, Math.round(score)));
+  return { score, flags, goodFlags };
+}
+function scoreTier(score){
+  if(score >= 75) return { tag:'Excellent', color:'#4E9A55' };
+  if(score >= 55) return { tag:'Good', color:'#4E9A55' };
+  if(score >= 35) return { tag:'Fair', color:'#F0A93C' };
+  return { tag:'Poor', color:'#D14545' };
+}
+function renderScore(product, barcode){
+  const name = product.product_name || product.product_name_en || 'Unnamed product';
+  const brand = product.brands || ''; const qty = product.quantity || '';
+  document.getElementById('prodName').textContent = name;
+  document.getElementById('prodSub').textContent = [brand, qty].filter(Boolean).join(' · ') || `Barcode ${barcode}`;
+  const { score, flags, goodFlags } = computeScore(product);
+  const tier = scoreTier(score);
+  document.getElementById('dialNum').textContent = score;
+  document.getElementById('dialNum').style.color = tier.color;
+  document.getElementById('dialTag').textContent = tier.tag;
+  const deg = Math.round((score/100)*360);
+  document.getElementById('dial').style.background = `conic-gradient(${tier.color} 0deg ${deg}deg, #E8E2CF ${deg}deg 360deg)`;
+  const pillsRow = document.getElementById('pillsRow'); pillsRow.innerHTML = '';
+  flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = f.t; pillsRow.appendChild(el); });
+  goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = g; pillsRow.appendChild(el); });
+  const listRows = document.getElementById('listRows');
+  const nutri = (product.nutriscore_grade || '?').toUpperCase();
+  const nova = product.nova_group || '?';
+  listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>Nutri-Score</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>Processing (NOVA)</span><span>Group ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>Additives flagged</span><span>${flags.length}</span></div>`;
+  document.getElementById('bdSub').textContent = `${flags.length} factor(s) affected the rating`;
+  const acc = document.getElementById('accordionList'); acc.innerHTML = '';
+  if(flags.length === 0){ acc.innerHTML = '<div class="acc-item"><div class="t">No major concerns found</div><div class="d">Based on available data, this product has no significant flags.</div></div>'; }
+  flags.forEach(f => {
+    const riskClass = f.risk === 'high' ? 'risk-high' : (f.risk === 'mod' ? 'risk-mod' : 'risk-low');
+    const riskLabel = f.risk === 'high' ? 'High' : (f.risk === 'mod' ? 'Moderate' : 'Low');
+    const div = document.createElement('div'); div.className = 'acc-item';
+    div.innerHTML = `<div class="t">${f.t} <span class="risk-tag ${riskClass}">${riskLabel}</span></div><div class="d">${f.d}</div>`;
+    acc.appendChild(div);
+  });
+  goodFlags.forEach(g => {
+    const div = document.createElement('div'); div.className = 'acc-item';
+    div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
+    acc.appendChild(div);
+  });
+  saveToHistory({ barcode, name, score, tier: tier.tag, color: tier.color, ts: Date.now() });
+}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4KAQzK3mtMcAfnkUlxecXl93dQgjR_rM",
+  authDomain: "foodcheck-india.firebaseapp.com",
+  projectId: "foodcheck-india",
+  storageBucket: "foodcheck-india.firebasestorage.app",
+  messagingSenderId: "848916197751",
+  appId: "1:848916197751:web:c213e5421b7d30c0143172",
+  measurementId: "G-7K6YVH2K32"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+window.fcSignOut = () => signOut(auth);
+
+document.getElementById('googleSignInBtn').addEventListener('click', () => {
+  signInWithRedirect(auth, provider);
+});
+
+getRedirectResult(auth).catch((err) => {
+  console.error('Redirect sign-in error:', err);
+  alert('Sign-in failed: ' + err.message);
+});
+
+onAuthStateChanged(auth, (user) => {
+  const wasResolved = window.fcAuthResolved;
+  window.fcUser = user;
+  window.fcAuthResolved = true;
+
+  if (!wasResolved) {
+    // First resolution after page load — let the queued app-flow decision run.
+    (window.fcAuthQueue || []).forEach(fn => fn());
+    window.fcAuthQueue = [];
+  } else {
+    // A later change — user just signed in or out via a button click.
+    if (user) {
+      window.updateUserChip && window.updateUserChip();
+      window.showScreen && window.showScreen('home-screen');
+    } else {
+      window.showScreen && window.showScreen('login-screen');
+    }
+  }
+});
+</script>
+</body>
+</html>
