@@ -76,6 +76,16 @@
   .risk-high{background:#FBE2DE;color:var(--red);}
   .risk-mod{background:#FCEAD1;color:var(--amber-dim);}
   .risk-low{background:#E8F3E3;color:var(--leaf);}
+  .fav-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#C9C2A8;line-height:1;padding:0;margin-left:auto;}
+  .fav-btn.active{color:var(--turmeric);}
+  .fav-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
+  .fav-list{flex:1;overflow-y:auto;padding:12px 18px;}
+  .fav-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+  .fav-item .hist-info{cursor:pointer;}
+  .fav-remove{background:none;border:none;font-size:16px;cursor:pointer;color:var(--turmeric);flex-shrink:0;}
+  .home-fav-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
+  .home-fav-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
+  .home-fav-list{margin-top:12px;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
@@ -107,6 +117,7 @@
   .stat-num{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);}
   .stat-label{font-size:10.5px;color:#8A8A78;margin-top:4px;}
   .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .home-cta-secondary{margin-top:10px;background:#fff;color:var(--indigo);border:1px solid #DFD9C4;padding:13px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
   .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
   .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
   .home-recent-list{margin-top:12px;}
@@ -129,8 +140,11 @@
       <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label">Avg Swaasth Score</div></div>
     </div>
     <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
+    <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
     <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
     <div class="home-recent-list" id="homeRecentList"></div>
+    <div class="home-fav-head">Your Favorites <span id="homeFavViewAll">View all</span></div>
+    <div class="home-fav-list" id="homeFavList"></div>
     <div class="home-support">Need help? <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
   </div>
   <div class="screen active" id="onboarding-screen">
@@ -164,7 +178,7 @@
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
   </div>
   <div class="screen" id="score-screen">
-    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span></div>
+    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span><button class="fav-btn" id="favBtn" title="Save to favorites">☆</button></div>
     <div style="padding:0 18px;">
       <div class="prod-name" id="prodName">—</div>
       <div class="prod-sub" id="prodSub">—</div>
@@ -187,19 +201,29 @@
     <div class="hist-list" id="histList"></div>
     <div class="clear-hist-btn" id="clearHistBtn">Clear history</div>
   </div>
+  <div class="screen" id="favorites-screen">
+    <div class="fav-head">Your Favorites</div>
+    <div class="fav-list" id="favList"></div>
+  </div>
 </div>
 <script>
-const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen'];
+const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
   document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
-  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen') ? 'block' : 'none';
+  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen') ? 'block' : 'none';
   document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
   if(id==='home-screen'){ renderHome(); }
 }
 document.getElementById('homeBtn').addEventListener('click', () => showScreen('home-screen'));
 document.getElementById('homeScanBtn').addEventListener('click', goToScanScreen);
+document.getElementById('homeManualBtn').addEventListener('click', () => {
+  goToScanScreen();
+  document.getElementById('manualForm').classList.add('show');
+  document.getElementById('manualInput').focus();
+});
 document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
+document.getElementById('homeFavViewAll').addEventListener('click', () => { renderFavorites(); showScreen('favorites-screen'); });
 function renderHome(){
   const hist = loadHistory();
   const firstName = (window.fcUser && window.fcUser.displayName) ? window.fcUser.displayName.split(' ')[0] : 'there';
@@ -210,15 +234,28 @@ function renderHome(){
   const listEl = document.getElementById('homeRecentList');
   if(hist.length === 0){
     listEl.innerHTML = '<div class="hist-empty">No scans yet — try your first one!</div>';
-    return;
+  }else{
+    listEl.innerHTML = '';
+    hist.slice(0,3).forEach(h => {
+      const div = document.createElement('div'); div.className = 'hist-item';
+      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(h.barcode));
+      listEl.appendChild(div);
+    });
   }
-  listEl.innerHTML = '';
-  hist.slice(0,3).forEach(h => {
-    const div = document.createElement('div'); div.className = 'hist-item';
-    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
-    div.addEventListener('click', () => lookupProduct(h.barcode));
-    listEl.appendChild(div);
-  });
+  const favs = loadFavorites();
+  const favListEl = document.getElementById('homeFavList');
+  if(favs.length === 0){
+    favListEl.innerHTML = '<div class="hist-empty">No favorites yet — tap the ☆ on any product to save it.</div>';
+  }else{
+    favListEl.innerHTML = '';
+    favs.slice(0,3).forEach(f => {
+      const div = document.createElement('div'); div.className = 'hist-item';
+      div.innerHTML = `<div class="hist-score" style="background:${f.color}">${f.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(f.name)}</div><div class="hist-meta">${f.tier}</div></div>`;
+      div.addEventListener('click', () => lookupProduct(f.barcode));
+      favListEl.appendChild(div);
+    });
+  }
 }
 document.getElementById('clearHistBtn').addEventListener('click', () => {
   localStorage.removeItem(HISTORY_KEY);
@@ -240,6 +277,61 @@ function escapeHtml(str){
   const div = document.createElement('div');
   div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
+}
+const FAVORITES_KEY = 'foodcheck_favorites';
+function loadFavorites(){
+  try{ return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; }
+  catch(e){ return []; }
+}
+function isFavorited(barcode){
+  return loadFavorites().some(f => f.barcode === barcode);
+}
+function addFavorite(entry){
+  let favs = loadFavorites();
+  favs = favs.filter(f => f.barcode !== entry.barcode);
+  favs.unshift(entry);
+  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
+}
+function removeFavorite(barcode){
+  const favs = loadFavorites().filter(f => f.barcode !== barcode);
+  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
+}
+function renderFavorites(){
+  const favs = loadFavorites();
+  const listEl = document.getElementById('favList');
+  if(favs.length === 0){
+    listEl.innerHTML = '<div class="hist-empty">No favorites yet. Tap the ☆ on any scanned product to save it here.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  favs.forEach(f => {
+    const div = document.createElement('div'); div.className = 'fav-item';
+    const info = document.createElement('div'); info.className = 'hist-info';
+    info.innerHTML = `<div class="hist-score" style="display:inline-flex;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;background:${f.color};margin-right:12px;vertical-align:middle;">${f.score}</div><span class="hist-name">${escapeHtml(f.name)}</span><div class="hist-meta">${f.tier}</div>`;
+    info.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;cursor:pointer;';
+    info.addEventListener('click', () => lookupProduct(f.barcode));
+    const removeBtn = document.createElement('button'); removeBtn.className = 'fav-remove'; removeBtn.textContent = '★';
+    removeBtn.title = 'Remove from favorites';
+    removeBtn.addEventListener('click', () => { removeFavorite(f.barcode); renderFavorites(); });
+    div.appendChild(info); div.appendChild(removeBtn);
+    listEl.appendChild(div);
+  });
+}
+document.getElementById('favBtn').addEventListener('click', () => {
+  if(!window.currentProduct) return;
+  const barcode = window.currentProduct.barcode;
+  if(isFavorited(barcode)){
+    removeFavorite(barcode);
+  }else{
+    addFavorite(window.currentProduct);
+  }
+  updateFavBtn(barcode);
+});
+function updateFavBtn(barcode){
+  const btn = document.getElementById('favBtn');
+  const fav = isFavorited(barcode);
+  btn.textContent = fav ? '★' : '☆';
+  btn.classList.toggle('active', fav);
 }
 function renderHistory(){
   const hist = loadHistory();
@@ -441,6 +533,8 @@ function renderScore(product, barcode){
     div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
     acc.appendChild(div);
   });
+  window.currentProduct = { barcode, name, score, tier: tier.tag, color: tier.color };
+  updateFavBtn(barcode);
   saveToHistory({ barcode, name, score, tier: tier.tag, color: tier.color, ts: Date.now() });
 }
 </script>
