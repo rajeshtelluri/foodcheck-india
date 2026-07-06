@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -177,6 +177,7 @@
   <div class="topbar">
     <div class="brand">FoodCheck<span>India</span></div>
     <div class="user-chip" id="userChip" title="Profile"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
+    <button class="settings-btn" id="langBtn" title="Language" style="display:none;">🌐</button>
     <button class="settings-btn" id="settingsBtn" title="Profile & Settings">⚙️</button>
     <button class="home-btn" id="homeBtn" title="Home">🏠</button>
     <button class="back-btn" id="backBtn">← Back</button>
@@ -184,18 +185,18 @@
   <div class="screen" id="home-screen">
     <div class="home-greet" id="homeGreet">Welcome!</div>
     <div class="home-stats">
-      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Products scanned</div></div>
-      <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label">Avg Swaasth Score</div></div>
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label" id="statScannedLabel">Products scanned</div></div>
+      <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label" id="statAvgLabel">Avg Swaasth Score</div></div>
     </div>
     <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
     <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
     <div class="home-cta-secondary" id="homeSearchBtn">🔍 Search by product name</div>
     <div class="home-cta-secondary" id="homeCompareBtn">⚖️ Compare Products</div>
-    <div class="home-recent-head">Recent scans <span id="homeViewAll">View all</span></div>
+    <div class="home-recent-head"><span id="recentScansLabel">Recent scans</span> <span id="homeViewAll">View all</span></div>
     <div class="home-recent-list" id="homeRecentList"></div>
-    <div class="home-fav-head">Your Favorites <span id="homeFavViewAll">View all</span></div>
+    <div class="home-fav-head"><span id="yourFavoritesLabel">Your Favorites</span> <span id="homeFavViewAll">View all</span></div>
     <div class="home-fav-list" id="homeFavList"></div>
-    <div class="home-support">Need help? <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
+    <div class="home-support"><span id="needHelpLabel">Need help?</span> <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
   </div>
   <div class="screen active" id="onboarding-screen">
     <div class="ob-icon" id="obIcon">📷</div>
@@ -207,24 +208,24 @@
   </div>
   <div class="screen" id="login-screen">
     <div class="login-icon">🇮🇳</div>
-    <div class="login-title">Sign in to FoodCheck India</div>
-    <div class="login-desc">Sign in with Google to personalize your FoodCheck India experience.</div>
+    <div class="login-title" id="loginTitle">Sign in to FoodCheck India</div>
+    <div class="login-desc" id="loginDesc">Sign in with Google to personalize your FoodCheck India experience.</div>
     <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
     <button class="guest-btn" id="guestBtn">Continue as guest</button>
   </div>
   <div class="screen" id="scan-screen">
     <div id="reader"></div>
-    <p class="scan-hint">Point your camera at a barcode</p>
+    <p class="scan-hint" id="scanHint">Point your camera at a barcode</p>
     <div class="manual-toggle"><button id="manualToggleBtn">or type a barcode number manually</button></div>
     <div class="manual-form" id="manualForm">
       <input type="text" id="manualInput" placeholder="e.g. 8901058851397" inputmode="numeric">
       <button id="manualSubmit">Check product</button>
     </div>
   </div>
-  <div class="screen" id="loading-screen"><div class="spinner"></div><p>Looking up product…</p></div>
+  <div class="screen" id="loading-screen"><div class="spinner"></div><p id="loadingText">Looking up product…</p></div>
   <div class="screen" id="notfound-screen">
     <div class="icon">📦</div>
-    <h3>Not in our database yet</h3>
+    <h3 id="notfoundTitle">Not in our database yet</h3>
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
   </div>
   <div class="screen" id="score-screen">
@@ -235,7 +236,7 @@
     </div>
     <div class="dial-wrap">
       <div class="dial" id="dial"><div class="dial-inner"><div class="dial-num" id="dialNum">—</div><div class="dial-tag" id="dialTag">—</div></div></div>
-      <div class="swaasth-label">Swaasth Score</div>
+      <div class="swaasth-label" id="swaasthLabel">Swaasth Score</div>
     </div>
     <div class="pills" id="pillsRow"></div>
     <div class="list" id="listRows"></div>
@@ -244,7 +245,7 @@
     <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
   </div>
   <div class="screen" id="alternatives-screen">
-    <div class="alt-head"><div class="k">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
+    <div class="alt-head"><div class="k" id="altHeadLabel">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
     <div class="alt-list" id="altList"></div>
   </div>
   <div class="screen" id="search-screen">
@@ -265,16 +266,16 @@
     <div class="compare-table" id="compareTable"></div>
   </div>
   <div class="screen" id="breakdown-screen">
-    <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
+    <div class="bd-head"><div class="k" id="whyScoreLabel">Why this score?</div><div class="v" id="bdSub">—</div></div>
     <div class="accordion" id="accordionList"></div>
   </div>
   <div class="screen" id="history-screen">
-    <div class="hist-head">Recent scans</div>
+    <div class="hist-head" id="histHeadLabel">Recent scans</div>
     <div class="hist-list" id="histList"></div>
     <div class="clear-hist-btn" id="clearHistBtn">Clear history</div>
   </div>
   <div class="screen" id="favorites-screen">
-    <div class="fav-head">Your Favorites</div>
+    <div class="fav-head" id="favHeadLabel">Your Favorites</div>
     <div class="fav-list" id="favList"></div>
   </div>
   <div class="screen" id="profile-screen">
@@ -289,17 +290,168 @@
       <div class="profile-btn neutral" id="profileClearFavBtn">Clear all favorites</div>
       <div class="profile-btn danger" id="profileSignOutBtn" style="display:none;">Sign out</div>
     </div>
-    <div class="profile-version">FoodCheck India · Need help? <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);">Contact support</a></div>
+    <div class="profile-version">FoodCheck India · <span id="profileNeedHelpLabel">Need help?</span> <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);" id="profileContactLink">Contact support</a></div>
   </div>
 </div>
 <script>
 const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen','search-screen','compare-screen'];
+const translations = {
+en: {
+  ob1_title:'Scan any barcode', ob1_desc:'Point your camera at any packaged food product sold in India to check it instantly.',
+  ob2_title:'Get your Swaasth Score', ob2_desc:'A 0–100 rating built from Nutri-Score, NOVA processing group, additives, sugar & sodium levels.',
+  ob3_title:'Track & discover better picks', ob3_desc:'Your recent scans are saved so you can revisit them, and we surface healthier alternatives.',
+  ob_next:'Next', ob_get_started:'Get Started', ob_skip:'Skip',
+  login_title:'Sign in to FoodCheck India', login_desc:'Sign in with Google to personalize your FoodCheck India experience.',
+  guest_btn:'Continue as guest',
+  stat_scanned:'Products scanned', stat_avg:'Avg Swaasth Score',
+  scan_cta:'📷 Scan a Product', manual_cta:'🔢 Enter barcode manually', search_cta:'🔍 Search by product name', compare_cta:'⚖️ Compare Products',
+  recent_scans:'Recent scans', view_all:'View all', your_favorites:'Your Favorites', need_help:'Need help?',
+  scan_hint:'Point your camera at a barcode', manual_toggle:'or type a barcode number manually', manual_placeholder:'e.g. 8901058851397', manual_submit:'Check product',
+  loading_text:'Looking up product…',
+  notfound_title:'Not in our database yet', notfound_msg:"This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.",
+  notfound_barcode_msg:"This barcode isn't in Open Food Facts' database yet.",
+  network_error:'Network error: ',
+  swaasth_label:'Swaasth Score',
+  breakdown_btn:'See full ingredient breakdown', scan_again_btn:'Scan another product', alt_btn:'🥗 See Healthier Alternatives',
+  why_score:'Why this score?',
+  hist_head:'Recent scans', clear_hist:'Clear history', hist_empty:'No scans yet. Products you check will show up here.', hist_empty_home:'No scans yet — try your first one!',
+  fav_head:'Your Favorites', fav_empty:'No favorites yet. Tap the ☆ on any scanned product to save it here.', fav_empty_home:'No favorites yet — tap the ☆ on any product to save it.',
+  profile_guest_note:"You're using FoodCheck India as a guest. Sign in with Google to personalize your account.",
+  profile_signin:'Sign in with Google', profile_install:'📲 Install App', profile_clear_hist:'Clear scan history', profile_clear_fav:'Clear all favorites', profile_signout:'Sign out',
+  profile_need_help:'Need help?', profile_contact:'Contact support', profile_guest_name:'Guest', profile_account_name:'Account',
+  alt_head:'Healthier picks', alt_sub:'Similar products with better scores', alt_loading:'Looking for better options…', alt_none:'No better-scoring alternatives found in this category yet.', alt_nocats:'Not enough category data to suggest alternatives.', alt_fail:"Couldn't load alternatives right now. Try again later.",
+  search_placeholder:'e.g. Maggi noodles, Britannia biscuits', search_typing:'Keep typing… (min 3 characters)', search_searching:'Searching…', search_none:'No products found. Try a different search term.', search_fail:'Search failed. Check your connection and try again.',
+  compare_slot_tpl:'+ Add Product {s}', compare_remove:'Remove', compare_search_placeholder:'Search product name…', compare_pick_hint:'Type to search, or scan a product first to see it here.', compare_search_none:'No products found.', compare_search_fail:'Search failed. Try again.', loading_product:'Loading product…', could_not_load:'Could not load that product.',
+  tier_excellent:'Excellent', tier_good:'Good', tier_fair:'Fair', tier_poor:'Poor',
+  nutriscore_label:'Nutri-Score', nova_label:'Processing (NOVA)', group_label:'Group', additives_label:'Additives flagged',
+  factors_affected_tpl:'{n} factor(s) affected the rating',
+  compare_score:'Swaasth Score', compare_rating:'Rating', compare_nutri:'Nutri-Score', compare_nova:'NOVA Group', compare_sugar:'Sugar/100g', compare_sodium:'Sodium/100g', compare_additives:'Additives',
+  flag_nova4_t:'Ultra-processed (NOVA 4)', flag_nova4_d:'Highly industrial formulation with additives rarely used in home cooking.',
+  flag_nova3_t:'Processed food (NOVA 3)', flag_nova3_d:'Contains added oil, sugar or salt beyond the raw product.',
+  flag_additives_high_t:'{n} additives detected', flag_additives_high_d:'A high additive count often signals a heavily engineered product.',
+  flag_additives_mod_t:'{n} additive(s) detected', flag_additives_mod_d:'Present within typical packaged-food range.',
+  flag_sodium_t:'Sodium {n}mg/100g', flag_sodium_high_d:'High sodium. ICMR recommends under 2000mg total sodium per day.', flag_sodium_mod_d:'Moderate sodium level.',
+  flag_sugar_t:'Sugar {n}g/100g', flag_sugar_high_d:'High sugar under front-of-pack thresholds (>22.5g/100g).', flag_sugar_mod_d:'Moderate sugar content.',
+  good_minimal:'Minimally processed', good_noadditives:'No additives listed', good_lowsodium:'Low sodium', good_lowsugar:'Low sugar', good_organic:'Organic certified',
+  risk_high:'High', risk_mod:'Moderate', risk_low:'Low', risk_good:'Good',
+  no_concerns_t:'No major concerns found', no_concerns_d:'Based on available data, this product has no significant flags.',
+  good_contributed_d:'This factor positively contributed to the score.',
+  unnamed_product:'Unnamed product', barcode_label:'Barcode'
+},
+hi: {
+  ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
+  ob2_title:'अपना स्वास्थ स्कोर पाएं', ob2_desc:'न्यूट्री-स्कोर, नोवा प्रोसेसिंग ग्रुप, एडिटिव्स, शुगर और सोडियम स्तर पर आधारित 0–100 की रेटिंग।',
+  ob3_title:'ट्रैक करें और बेहतर विकल्प खोजें', ob3_desc:'आपके हाल के स्कैन सेव हो जाते हैं ताकि आप उन्हें दोबारा देख सकें, और हम स्वास्थ्यवर्धक विकल्प भी दिखाते हैं।',
+  ob_next:'आगे', ob_get_started:'शुरू करें', ob_skip:'छोड़ें',
+  login_title:'FoodCheck India में साइन इन करें', login_desc:'अपने FoodCheck India अनुभव को व्यक्तिगत बनाने के लिए Google से साइन इन करें।',
+  guest_btn:'गेस्ट के रूप में जारी रखें',
+  stat_scanned:'स्कैन किए गए उत्पाद', stat_avg:'औसत स्वास्थ स्कोर',
+  scan_cta:'📷 उत्पाद स्कैन करें', manual_cta:'🔢 बारकोड नंबर मैन्युअली दर्ज करें', search_cta:'🔍 उत्पाद के नाम से खोजें', compare_cta:'⚖️ उत्पादों की तुलना करें',
+  recent_scans:'हाल के स्कैन', view_all:'सभी देखें', your_favorites:'आपके पसंदीदा', need_help:'मदद चाहिए?',
+  scan_hint:'कैमरे को बारकोड पर पॉइंट करें', manual_toggle:'या बारकोड नंबर मैन्युअली टाइप करें', manual_placeholder:'जैसे 8901058851397', manual_submit:'उत्पाद जांचें',
+  loading_text:'उत्पाद खोजा जा रहा है…',
+  notfound_title:'अभी हमारे डेटाबेस में नहीं है', notfound_msg:'यह उत्पाद अभी Open Food Facts की भारत सूची में नहीं है। कोई और उत्पाद आज़माएं, या खुद openfoodfacts.org पर जोड़कर मदद करें।',
+  notfound_barcode_msg:'यह बारकोड अभी Open Food Facts के डेटाबेस में नहीं है।',
+  network_error:'नेटवर्क त्रुटि: ',
+  swaasth_label:'स्वास्थ स्कोर',
+  breakdown_btn:'पूरा इंग्रेडिएंट विवरण देखें', scan_again_btn:'एक और उत्पाद स्कैन करें', alt_btn:'🥗 स्वास्थ्यवर्धक विकल्प देखें',
+  why_score:'यह स्कोर क्यों?',
+  hist_head:'हाल के स्कैन', clear_hist:'इतिहास साफ़ करें', hist_empty:'अभी तक कोई स्कैन नहीं। आपके द्वारा जांचे गए उत्पाद यहां दिखेंगे।', hist_empty_home:'अभी तक कोई स्कैन नहीं — अपना पहला स्कैन आज़माएं!',
+  fav_head:'आपके पसंदीदा', fav_empty:'अभी तक कोई पसंदीदा नहीं। किसी भी स्कैन किए गए उत्पाद पर ☆ टैप करें।', fav_empty_home:'अभी तक कोई पसंदीदा नहीं — किसी उत्पाद पर ☆ टैप करें।',
+  profile_guest_note:'आप FoodCheck India को गेस्ट के रूप में उपयोग कर रहे हैं। अपने खाते को व्यक्तिगत बनाने के लिए Google से साइन इन करें।',
+  profile_signin:'Google से साइन इन करें', profile_install:'📲 ऐप इंस्टॉल करें', profile_clear_hist:'स्कैन इतिहास साफ़ करें', profile_clear_fav:'सभी पसंदीदा हटाएं', profile_signout:'साइन आउट करें',
+  profile_need_help:'मदद चाहिए?', profile_contact:'सहायता से संपर्क करें', profile_guest_name:'गेस्ट', profile_account_name:'खाता',
+  alt_head:'स्वास्थ्यवर्धक विकल्प', alt_sub:'बेहतर स्कोर वाले समान उत्पाद', alt_loading:'बेहतर विकल्प खोजे जा रहे हैं…', alt_none:'इस श्रेणी में अभी बेहतर स्कोर वाला कोई विकल्प नहीं मिला।', alt_nocats:'विकल्प सुझाने के लिए पर्याप्त श्रेणी डेटा नहीं है।', alt_fail:'अभी विकल्प लोड नहीं हो पाए। बाद में फिर कोशिश करें।',
+  search_placeholder:'जैसे मैगी नूडल्स, ब्रिटानिया बिस्कुट', search_typing:'टाइप करते रहें… (कम से कम 3 अक्षर)', search_searching:'खोजा जा रहा है…', search_none:'कोई उत्पाद नहीं मिला। कोई और शब्द आज़माएं।', search_fail:'खोज विफल रही। अपना कनेक्शन जांचें और फिर कोशिश करें।',
+  compare_slot_tpl:'+ उत्पाद {s} जोड़ें', compare_remove:'हटाएं', compare_search_placeholder:'उत्पाद का नाम खोजें…', compare_pick_hint:'खोजने के लिए टाइप करें, या पहले कोई उत्पाद स्कैन करें।', compare_search_none:'कोई उत्पाद नहीं मिला।', compare_search_fail:'खोज विफल रही। फिर कोशिश करें।', loading_product:'उत्पाद लोड हो रहा है…', could_not_load:'वह उत्पाद लोड नहीं हो सका।',
+  tier_excellent:'उत्कृष्ट', tier_good:'अच्छा', tier_fair:'ठीक-ठाक', tier_poor:'खराब',
+  nutriscore_label:'न्यूट्री-स्कोर', nova_label:'प्रोसेसिंग (NOVA)', group_label:'ग्रुप', additives_label:'फ्लैग किए गए एडिटिव्स',
+  factors_affected_tpl:'{n} कारकों ने रेटिंग को प्रभावित किया',
+  compare_score:'स्वास्थ स्कोर', compare_rating:'रेटिंग', compare_nutri:'न्यूट्री-स्कोर', compare_nova:'NOVA ग्रुप', compare_sugar:'शुगर/100g', compare_sodium:'सोडियम/100g', compare_additives:'एडिटिव्स',
+  flag_nova4_t:'अति-प्रसंस्कृत (NOVA 4)', flag_nova4_d:'अत्यधिक औद्योगिक फॉर्मूलेशन जिसमें ऐसे एडिटिव्स होते हैं जो घर के खाने में शायद ही इस्तेमाल होते हैं।',
+  flag_nova3_t:'प्रोसेस्ड फूड (NOVA 3)', flag_nova3_d:'कच्चे उत्पाद से अधिक तेल, शुगर या नमक मिलाया गया है।',
+  flag_additives_high_t:'{n} एडिटिव्स पाए गए', flag_additives_high_d:'एडिटिव्स की अधिक संख्या अक्सर भारी इंजीनियर्ड उत्पाद का संकेत देती है।',
+  flag_additives_mod_t:'{n} एडिटिव(स्) पाए गए', flag_additives_mod_d:'यह सामान्य पैकेज्ड-फूड सीमा के भीतर है।',
+  flag_sodium_t:'सोडियम {n}mg/100g', flag_sodium_high_d:'उच्च सोडियम। ICMR प्रतिदिन 2000mg से कम कुल सोडियम की सिफारिश करता है।', flag_sodium_mod_d:'मध्यम सोडियम स्तर।',
+  flag_sugar_t:'शुगर {n}g/100g', flag_sugar_high_d:'फ्रंट-ऑफ-पैक सीमा (>22.5g/100g) से अधिक शुगर।', flag_sugar_mod_d:'मध्यम शुगर मात्रा।',
+  good_minimal:'न्यूनतम प्रसंस्करण', good_noadditives:'कोई एडिटिव सूचीबद्ध नहीं', good_lowsodium:'कम सोडियम', good_lowsugar:'कम शुगर', good_organic:'ऑर्गेनिक प्रमाणित',
+  risk_high:'उच्च', risk_mod:'मध्यम', risk_low:'कम', risk_good:'अच्छा',
+  no_concerns_t:'कोई बड़ी चिंता नहीं मिली', no_concerns_d:'उपलब्ध डेटा के आधार पर, इस उत्पाद में कोई महत्वपूर्ण फ्लैग नहीं है।',
+  good_contributed_d:'इस कारक ने स्कोर में सकारात्मक योगदान दिया।',
+  unnamed_product:'अज्ञात उत्पाद', barcode_label:'बारकोड'
+}
+};
+let currentLang = 'en';
+try{ currentLang = localStorage.getItem('foodcheck_lang') || 'en'; }catch(e){}
+function t(key){
+  return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
+}
+function applyLanguage(lang){
+  currentLang = lang;
+  try{ localStorage.setItem('foodcheck_lang', lang); }catch(e){}
+  document.getElementById('langBtn').textContent = lang === 'hi' ? '🌐 EN' : '🌐 हिं';
+  document.getElementById('loginTitle').textContent = t('login_title');
+  document.getElementById('loginDesc').textContent = t('login_desc');
+  document.getElementById('guestBtn').textContent = t('guest_btn');
+  document.getElementById('statScannedLabel').textContent = t('stat_scanned');
+  document.getElementById('statAvgLabel').textContent = t('stat_avg');
+  document.getElementById('homeScanBtn').textContent = t('scan_cta');
+  document.getElementById('homeManualBtn').textContent = t('manual_cta');
+  document.getElementById('homeSearchBtn').textContent = t('search_cta');
+  document.getElementById('homeCompareBtn').textContent = t('compare_cta');
+  document.getElementById('recentScansLabel').textContent = t('recent_scans');
+  document.getElementById('homeViewAll').textContent = t('view_all');
+  document.getElementById('yourFavoritesLabel').textContent = t('your_favorites');
+  document.getElementById('homeFavViewAll').textContent = t('view_all');
+  document.getElementById('needHelpLabel').textContent = t('need_help');
+  document.getElementById('scanHint').textContent = t('scan_hint');
+  document.getElementById('manualToggleBtn').textContent = t('manual_toggle');
+  document.getElementById('manualInput').placeholder = t('manual_placeholder');
+  document.getElementById('manualSubmit').textContent = t('manual_submit');
+  document.getElementById('loadingText').textContent = t('loading_text');
+  document.getElementById('notfoundTitle').textContent = t('notfound_title');
+  document.getElementById('notfoundMsg').textContent = t('notfound_msg');
+  document.getElementById('swaasthLabel').textContent = t('swaasth_label');
+  document.getElementById('breakdownBtn').textContent = t('breakdown_btn');
+  document.getElementById('scanAgainBtn').textContent = t('scan_again_btn');
+  document.getElementById('altBtn').textContent = t('alt_btn');
+  document.getElementById('whyScoreLabel').textContent = t('why_score');
+  document.getElementById('histHeadLabel').textContent = t('hist_head');
+  document.getElementById('clearHistBtn').textContent = t('clear_hist');
+  document.getElementById('favHeadLabel').textContent = t('fav_head');
+  document.getElementById('profileGuestNote').textContent = t('profile_guest_note');
+  document.getElementById('profileSignInBtn').textContent = t('profile_signin');
+  document.getElementById('installAppBtn').textContent = t('profile_install');
+  document.getElementById('profileClearHistBtn').textContent = t('profile_clear_hist');
+  document.getElementById('profileClearFavBtn').textContent = t('profile_clear_fav');
+  document.getElementById('profileSignOutBtn').textContent = t('profile_signout');
+  document.getElementById('profileNeedHelpLabel').textContent = t('profile_need_help');
+  document.getElementById('profileContactLink').textContent = t('profile_contact');
+  document.getElementById('altHeadLabel').textContent = t('alt_head');
+  document.getElementById('altSub').textContent = t('alt_sub');
+  document.getElementById('searchInput').placeholder = t('search_placeholder');
+  document.getElementById('comparePickerInput').placeholder = t('compare_search_placeholder');
+  if(obStep !== undefined){ renderOnboardStep(); }
+  renderCompareSlots();
+  const activeScreen = document.querySelector('.screen.active');
+  if(activeScreen){
+    if(activeScreen.id === 'home-screen') renderHome();
+    if(activeScreen.id === 'history-screen') renderHistory();
+    if(activeScreen.id === 'favorites-screen') renderFavorites();
+    if(activeScreen.id === 'profile-screen') renderProfile();
+    if(activeScreen.id === 'compare-screen') renderCompareTable();
+  }
+}
+document.getElementById('langBtn').addEventListener('click', () => {
+  applyLanguage(currentLang === 'hi' ? 'en' : 'hi');
+});
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
   document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
   document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen'||id==='search-screen'||id==='compare-screen') ? 'block' : 'none';
   document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
   document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
+  document.getElementById('langBtn').style.display = (id==='home-screen') ? 'block' : 'none';
   if(id==='home-screen'){ renderHome(); }
   if(id==='profile-screen'){ renderProfile(); }
 }
@@ -348,7 +500,7 @@ function renderComparePickerList(query){
     resultsEl.innerHTML = '';
     hist.forEach(h => {
       const div = document.createElement('div'); div.className = 'search-item';
-      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)}</div></div>`;
       div.addEventListener('click', () => selectCompareProduct(h.barcode));
       resultsEl.appendChild(div);
     });
@@ -413,13 +565,13 @@ function renderCompareTable(){
   const sa = computeScore(a), sb = computeScore(b);
   const tierA = scoreTier(sa.score), tierB = scoreTier(sb.score);
   const rows = [
-    ['Swaasth Score', `<b style="color:${tierA.color}">${sa.score}</b>`, `<b style="color:${tierB.color}">${sb.score}</b>`],
-    ['Rating', tierA.tag, tierB.tag],
-    ['Nutri-Score', (a.nutriscore_grade||'?').toUpperCase(), (b.nutriscore_grade||'?').toUpperCase()],
-    ['NOVA Group', a.nova_group || '?', b.nova_group || '?'],
-    ['Sugar/100g', a.nutriments && a.nutriments.sugars_100g != null ? a.nutriments.sugars_100g.toFixed(1)+'g' : '—', b.nutriments && b.nutriments.sugars_100g != null ? b.nutriments.sugars_100g.toFixed(1)+'g' : '—'],
-    ['Sodium/100g', a.nutriments && a.nutriments.sodium_100g != null ? (a.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—', b.nutriments && b.nutriments.sodium_100g != null ? (b.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—'],
-    ['Additives', (a.additives_tags||[]).length, (b.additives_tags||[]).length]
+    [t('compare_score'), `<b style="color:${tierA.color}">${sa.score}</b>`, `<b style="color:${tierB.color}">${sb.score}</b>`],
+    [t('compare_rating'), tierLabel(tierA.key), tierLabel(tierB.key)],
+    [t('compare_nutri'), (a.nutriscore_grade||'?').toUpperCase(), (b.nutriscore_grade||'?').toUpperCase()],
+    [t('compare_nova'), a.nova_group || '?', b.nova_group || '?'],
+    [t('compare_sugar'), a.nutriments && a.nutriments.sugars_100g != null ? a.nutriments.sugars_100g.toFixed(1)+'g' : '—', b.nutriments && b.nutriments.sugars_100g != null ? b.nutriments.sugars_100g.toFixed(1)+'g' : '—'],
+    [t('compare_sodium'), a.nutriments && a.nutriments.sodium_100g != null ? (a.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—', b.nutriments && b.nutriments.sodium_100g != null ? (b.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—'],
+    [t('compare_additives'), (a.additives_tags||[]).length, (b.additives_tags||[]).length]
   ];
   let html = `<div class="compare-row header"><div class="compare-cell label"></div><div class="compare-cell">${escapeHtml((a.product_name||'A').slice(0,14))}</div><div class="compare-cell">${escapeHtml((b.product_name||'B').slice(0,14))}</div></div>`;
   rows.forEach(([label, valA, valB]) => {
@@ -478,7 +630,7 @@ function renderHome(){
     listEl.innerHTML = '';
     hist.slice(0,3).forEach(h => {
       const div = document.createElement('div'); div.className = 'hist-item';
-      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier}</div></div>`;
+      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)}</div></div>`;
       div.addEventListener('click', () => lookupProduct(h.barcode));
       listEl.appendChild(div);
     });
@@ -491,7 +643,7 @@ function renderHome(){
     favListEl.innerHTML = '';
     favs.slice(0,3).forEach(f => {
       const div = document.createElement('div'); div.className = 'hist-item';
-      div.innerHTML = `<div class="hist-score" style="background:${f.color}">${f.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(f.name)}</div><div class="hist-meta">${f.tier}</div></div>`;
+      div.innerHTML = `<div class="hist-score" style="background:${f.color}">${f.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(f.name)}</div><div class="hist-meta">${tierLabel(f.tier)}</div></div>`;
       div.addEventListener('click', () => lookupProduct(f.barcode));
       favListEl.appendChild(div);
     });
@@ -547,7 +699,7 @@ function renderFavorites(){
   favs.forEach(f => {
     const div = document.createElement('div'); div.className = 'fav-item';
     const info = document.createElement('div'); info.className = 'hist-info';
-    info.innerHTML = `<div class="hist-score" style="display:inline-flex;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;background:${f.color};margin-right:12px;vertical-align:middle;">${f.score}</div><span class="hist-name">${escapeHtml(f.name)}</span><div class="hist-meta">${f.tier}</div>`;
+    info.innerHTML = `<div class="hist-score" style="display:inline-flex;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;background:${f.color};margin-right:12px;vertical-align:middle;">${f.score}</div><span class="hist-name">${escapeHtml(f.name)}</span><div class="hist-meta">${tierLabel(f.tier)}</div>`;
     info.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;cursor:pointer;';
     info.addEventListener('click', () => lookupProduct(f.barcode));
     const removeBtn = document.createElement('button'); removeBtn.className = 'fav-remove'; removeBtn.textContent = '★';
@@ -583,7 +735,7 @@ function renderHistory(){
   listEl.innerHTML = '';
   hist.forEach(h => {
     const div = document.createElement('div'); div.className = 'hist-item';
-    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${h.tier} · ${new Date(h.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div></div>`;
+    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)} · ${new Date(h.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div></div>`;
     div.addEventListener('click', () => lookupProduct(h.barcode));
     listEl.appendChild(div);
   });
@@ -745,35 +897,51 @@ function computeScore(product){
   const nutriMap = { a: 25, b: 12, c: 0, d: -12, e: -25 };
   if(nutri in nutriMap) score += nutriMap[nutri];
   const nova = product.nova_group;
-  if(nova === 4){ score -= 15; flags.push({t:'Ultra-processed (NOVA 4)', risk:'high', d:'Highly industrial formulation with additives rarely used in home cooking.'}); }
-  else if(nova === 3){ score -= 6; flags.push({t:'Processed food (NOVA 3)', risk:'mod', d:'Contains added oil, sugar or salt beyond the raw product.'}); }
-  else if(nova === 1 || nova === 2){ goodFlags.push('Minimally processed'); }
+  if(nova === 4){ score -= 15; flags.push({key:'nova4', risk:'high'}); }
+  else if(nova === 3){ score -= 6; flags.push({key:'nova3', risk:'mod'}); }
+  else if(nova === 1 || nova === 2){ goodFlags.push('minimal'); }
   const additives = product.additives_tags || [];
-  if(additives.length > 4){ score -= 10; flags.push({t:`${additives.length} additives detected`, risk:'high', d:'A high additive count often signals a heavily engineered product.'}); }
-  else if(additives.length > 0){ score -= 4; flags.push({t:`${additives.length} additive(s) detected`, risk:'mod', d:'Present within typical packaged-food range.'}); }
-  else{ goodFlags.push('No additives listed'); }
+  if(additives.length > 4){ score -= 10; flags.push({key:'additives_high', risk:'high', n: additives.length}); }
+  else if(additives.length > 0){ score -= 4; flags.push({key:'additives_mod', risk:'mod', n: additives.length}); }
+  else{ goodFlags.push('noadditives'); }
   const sodium = product.nutriments && product.nutriments.sodium_100g;
   if(sodium != null){
-    if(sodium > 0.6){ score -= 10; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'high', d:'High sodium. ICMR recommends under 2000mg total sodium per day.'}); }
-    else if(sodium > 0.3){ score -= 3; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'mod', d:'Moderate sodium level.'}); }
-    else{ goodFlags.push('Low sodium'); }
+    if(sodium > 0.6){ score -= 10; flags.push({key:'sodium_high', risk:'high', n: Math.round(sodium*1000)}); }
+    else if(sodium > 0.3){ score -= 3; flags.push({key:'sodium_mod', risk:'mod', n: Math.round(sodium*1000)}); }
+    else{ goodFlags.push('lowsodium'); }
   }
   const sugar = product.nutriments && product.nutriments.sugars_100g;
   if(sugar != null){
-    if(sugar > 22.5){ score -= 8; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'high', d:'High sugar under front-of-pack thresholds (>22.5g/100g).'}); }
-    else if(sugar > 5){ score -= 2; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'mod', d:'Moderate sugar content.'}); }
-    else{ goodFlags.push('Low sugar'); }
+    if(sugar > 22.5){ score -= 8; flags.push({key:'sugar_high', risk:'high', n: sugar.toFixed(1)}); }
+    else if(sugar > 5){ score -= 2; flags.push({key:'sugar_mod', risk:'mod', n: sugar.toFixed(1)}); }
+    else{ goodFlags.push('lowsugar'); }
   }
   const labels = (product.labels || '').toLowerCase();
-  if(labels.includes('organic')){ score += 8; goodFlags.push('Organic certified'); }
+  if(labels.includes('organic')){ score += 8; goodFlags.push('organic'); }
   score = Math.max(2, Math.min(98, Math.round(score)));
   return { score, flags, goodFlags };
 }
 function scoreTier(score){
-  if(score >= 75) return { tag:'Excellent', color:'#4E9A55' };
-  if(score >= 55) return { tag:'Good', color:'#4E9A55' };
-  if(score >= 35) return { tag:'Fair', color:'#F0A93C' };
-  return { tag:'Poor', color:'#D14545' };
+  if(score >= 75) return { key:'excellent', color:'#4E9A55' };
+  if(score >= 55) return { key:'good', color:'#4E9A55' };
+  if(score >= 35) return { key:'fair', color:'#F0A93C' };
+  return { key:'poor', color:'#D14545' };
+}
+function tierLabel(key){
+  const map = { excellent:'tier_excellent', good:'tier_good', fair:'tier_fair', poor:'tier_poor' };
+  return map[key] ? t(map[key]) : key;
+}
+function flagLabel(f){
+  const titleMap = { nova4:'flag_nova4_t', nova3:'flag_nova3_t', additives_high:'flag_additives_high_t', additives_mod:'flag_additives_mod_t', sodium_high:'flag_sodium_t', sodium_mod:'flag_sodium_t', sugar_high:'flag_sugar_t', sugar_mod:'flag_sugar_t' };
+  const descMap = { nova4:'flag_nova4_d', nova3:'flag_nova3_d', additives_high:'flag_additives_high_d', additives_mod:'flag_additives_mod_d', sodium_high:'flag_sodium_high_d', sodium_mod:'flag_sodium_mod_d', sugar_high:'flag_sugar_high_d', sugar_mod:'flag_sugar_mod_d' };
+  let title = t(titleMap[f.key] || f.key);
+  if(f.n !== undefined) title = title.replace('{n}', f.n);
+  const desc = t(descMap[f.key] || '');
+  return { title, desc };
+}
+function goodFlagLabel(key){
+  const map = { minimal:'good_minimal', noadditives:'good_noadditives', lowsodium:'good_lowsodium', lowsugar:'good_lowsugar', organic:'good_organic' };
+  return map[key] ? t(map[key]) : key;
 }
 function renderScore(product, barcode){
   const name = product.product_name || product.product_name_en || 'Unnamed product';
@@ -784,34 +952,35 @@ function renderScore(product, barcode){
   const tier = scoreTier(score);
   document.getElementById('dialNum').textContent = score;
   document.getElementById('dialNum').style.color = tier.color;
-  document.getElementById('dialTag').textContent = tier.tag;
+  document.getElementById('dialTag').textContent = tierLabel(tier.key);
   const deg = Math.round((score/100)*360);
   document.getElementById('dial').style.background = `conic-gradient(${tier.color} 0deg ${deg}deg, #E8E2CF ${deg}deg 360deg)`;
   const pillsRow = document.getElementById('pillsRow'); pillsRow.innerHTML = '';
-  flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = f.t; pillsRow.appendChild(el); });
-  goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = g; pillsRow.appendChild(el); });
+  flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = flagLabel(f).title; pillsRow.appendChild(el); });
+  goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = goodFlagLabel(g); pillsRow.appendChild(el); });
   const listRows = document.getElementById('listRows');
   const nutri = (product.nutriscore_grade || '?').toUpperCase();
   const nova = product.nova_group || '?';
-  listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>Nutri-Score</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>Processing (NOVA)</span><span>Group ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>Additives flagged</span><span>${flags.length}</span></div>`;
-  document.getElementById('bdSub').textContent = `${flags.length} factor(s) affected the rating`;
+  listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>${t('nutriscore_label')}</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>${t('nova_label')}</span><span>${t('group_label')} ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>${t('additives_label')}</span><span>${flags.length}</span></div>`;
+  document.getElementById('bdSub').textContent = t('factors_affected_tpl').replace('{n}', flags.length);
   const acc = document.getElementById('accordionList'); acc.innerHTML = '';
-  if(flags.length === 0){ acc.innerHTML = '<div class="acc-item"><div class="t">No major concerns found</div><div class="d">Based on available data, this product has no significant flags.</div></div>'; }
+  if(flags.length === 0){ acc.innerHTML = `<div class="acc-item"><div class="t">${t('no_concerns_t')}</div><div class="d">${t('no_concerns_d')}</div></div>`; }
   flags.forEach(f => {
     const riskClass = f.risk === 'high' ? 'risk-high' : (f.risk === 'mod' ? 'risk-mod' : 'risk-low');
-    const riskLabel = f.risk === 'high' ? 'High' : (f.risk === 'mod' ? 'Moderate' : 'Low');
+    const riskLabel = f.risk === 'high' ? t('risk_high') : (f.risk === 'mod' ? t('risk_mod') : t('risk_low'));
+    const label = flagLabel(f);
     const div = document.createElement('div'); div.className = 'acc-item';
-    div.innerHTML = `<div class="t">${f.t} <span class="risk-tag ${riskClass}">${riskLabel}</span></div><div class="d">${f.d}</div>`;
+    div.innerHTML = `<div class="t">${label.title} <span class="risk-tag ${riskClass}">${riskLabel}</span></div><div class="d">${label.desc}</div>`;
     acc.appendChild(div);
   });
   goodFlags.forEach(g => {
     const div = document.createElement('div'); div.className = 'acc-item';
-    div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
+    div.innerHTML = `<div class="t">${goodFlagLabel(g)} <span class="risk-tag risk-low">${t('risk_good')}</span></div><div class="d">${t('good_contributed_d')}</div>`;
     acc.appendChild(div);
   });
-  window.currentProduct = { barcode, name, score, tier: tier.tag, color: tier.color, categories_tags: product.categories_tags || [] };
+  window.currentProduct = { barcode, name, score, tier: tier.key, color: tier.color, categories_tags: product.categories_tags || [] };
   updateFavBtn(barcode);
-  saveToHistory({ barcode, name, score, tier: tier.tag, color: tier.color, ts: Date.now() });
+  saveToHistory({ barcode, name, score, tier: tier.key, color: tier.color, ts: Date.now() });
   const altBtn = document.getElementById('altBtn');
   altBtn.style.display = (score < 60 && window.currentProduct.categories_tags.length > 0) ? 'block' : 'none';
 }
@@ -846,7 +1015,7 @@ function loadAlternatives(){
       const name = p.product_name || p.product_name_en || 'Unnamed product';
       const brand = p.brands || '';
       const div = document.createElement('div'); div.className = 'alt-item';
-      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)} · ${tier.tag}</div></div>`;
+      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)} · ${tierLabel(tier.key)}</div></div>`;
       div.addEventListener('click', () => lookupProduct(p.code));
       listEl.appendChild(div);
     });
@@ -881,6 +1050,7 @@ window.addEventListener('appinstalled', () => {
   const btn = document.getElementById('installAppBtn');
   if (btn) btn.style.display = 'none';
 });
+applyLanguage(currentLang);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
