@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FoodCheck India</title>
+<meta name="description" content="Scan any packaged food barcode in India and get an instant Swaasth Score based on Nutri-Score, NOVA processing level, additives, sugar & sodium — free, powered by Open Food Facts.">
+<meta property="og:title" content="FoodCheck India — Barcode Health Scanner">
+<meta property="og:description" content="Scan any packaged food barcode and get an instant Swaasth Score. Free, no ads, powered by Open Food Facts.">
+<meta property="og:image" content="/icon-512.png">
+<meta property="og:type" content="website">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#161B33">
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -177,9 +182,9 @@
   <div class="topbar">
     <div class="brand">FoodCheck<span>India</span></div>
     <div class="user-chip" id="userChip" title="Profile"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
-    <button class="settings-btn" id="langBtn" title="Language" style="display:none;">🌐</button>
-    <button class="settings-btn" id="settingsBtn" title="Profile & Settings">⚙️</button>
-    <button class="home-btn" id="homeBtn" title="Home">🏠</button>
+    <button class="settings-btn" id="langBtn" title="Language" aria-label="Change language" style="display:none;">🌐</button>
+    <button class="settings-btn" id="settingsBtn" title="Profile & Settings" aria-label="Profile and settings">⚙️</button>
+    <button class="home-btn" id="homeBtn" title="Home" aria-label="Go to home screen">🏠</button>
     <button class="back-btn" id="backBtn">← Back</button>
   </div>
   <div class="screen" id="home-screen">
@@ -229,7 +234,7 @@
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
   </div>
   <div class="screen" id="score-screen">
-    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span><button class="fav-btn" id="favBtn" title="Save to favorites">☆</button></div>
+    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span><button class="fav-btn" id="favBtn" title="Save to favorites" aria-label="Save to favorites">☆</button></div>
     <div style="padding:0 18px;">
       <div class="prod-name" id="prodName">—</div>
       <div class="prod-sub" id="prodSub">—</div>
@@ -431,6 +436,7 @@ function t(key){
 function applyLanguage(lang){
   currentLang = lang;
   try{ localStorage.setItem('foodcheck_lang', lang); }catch(e){}
+  document.documentElement.lang = lang;
   const nextLabel = { en:'🌐 हिं', hi:'🌐 తె', te:'🌐 EN' };
   document.getElementById('langBtn').textContent = nextLabel[lang] || '🌐 हिं';
   document.getElementById('loginTitle').textContent = t('login_title');
@@ -1124,8 +1130,17 @@ function handleCredentialResponse(response) {
   });
 }
 
+let googleButtonRetries = 0;
 function initGoogleButton() {
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+    googleButtonRetries++;
+    if (googleButtonRetries > 40) {
+      const container = document.getElementById('gButtonContainer');
+      if (container) {
+        container.innerHTML = '<div style="font-size:11.5px;color:#8A8A78;text-align:center;padding:8px 4px;">Google Sign-In couldn\'t load (check your connection or ad blocker). You can still continue as a guest below.</div>';
+      }
+      return;
+    }
     setTimeout(initGoogleButton, 150);
     return;
   }
