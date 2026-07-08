@@ -39,7 +39,10 @@
   .hist-meta{font-size:11px;color:#8A8A78;margin-top:2px;}
   .clear-hist-btn{margin:0 18px 16px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--red);border:1px solid #F2D2CB;}
   .screen{flex:1;display:none;flex-direction:column;}
-  .screen.active{display:flex;}
+  .screen.active{display:flex;animation:screenFadeIn 0.28s ease;}
+  @keyframes screenFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes dialPop{0%{transform:scale(0.7);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
+  .dial.reveal{animation:dialPop 0.45s cubic-bezier(.34,1.56,.64,1);}
   #scan-screen{flex:1;}
   #reader{width:100%;background:#000;min-height:280px;}
   #reader video{border-radius:0 !important;}
@@ -74,6 +77,12 @@
   .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;}
   .dot.r{background:var(--red);} .dot.g{background:var(--leaf);} .dot.y{background:var(--turmeric);}
   .breakdown-btn,.scan-again-btn{margin:14px 18px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .nutrition-panel{background:#fff;border-top:1px solid #E9E3D0;padding:14px 18px 4px;}
+  .nutrition-head{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;margin-bottom:8px;color:#4A4A3E;}
+  .nutrition-row{display:flex;justify-content:space-between;padding:7px 0;font-size:12px;border-bottom:1px solid #F0ECDD;}
+  .nutrition-row:last-child{border-bottom:none;}
+  .nutrition-row.indent{padding-left:14px;color:#7A7A68;font-size:11.5px;}
+  .nutrition-row .v{font-weight:600;color:#1A1A1A;}
   .breakdown-btn{background:var(--saffron);color:#fff;}
   .scan-again-btn{background:var(--indigo);color:#fff;}
   .bd-head{padding:16px 18px;background:var(--saffron);color:#fff;}
@@ -245,6 +254,10 @@
     </div>
     <div class="pills" id="pillsRow"></div>
     <div class="list" id="listRows"></div>
+    <div class="nutrition-panel" id="nutritionPanel">
+      <div class="nutrition-head" id="nutritionHeadLabel">Nutrition Facts (per 100g)</div>
+      <div id="nutritionRows"></div>
+    </div>
     <div class="alt-btn" id="altBtn">🥗 See Healthier Alternatives</div>
     <div class="breakdown-btn" id="breakdownBtn">See full ingredient breakdown</div>
     <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
@@ -341,7 +354,8 @@ en: {
   risk_high:'High', risk_mod:'Moderate', risk_low:'Low', risk_good:'Good',
   no_concerns_t:'No major concerns found', no_concerns_d:'Based on available data, this product has no significant flags.',
   good_contributed_d:'This factor positively contributed to the score.',
-  unnamed_product:'Unnamed product', barcode_label:'Barcode'
+  unnamed_product:'Unnamed product', barcode_label:'Barcode',
+  nutrition_head:'Nutrition Facts (per 100g)', nutr_energy:'Energy', nutr_fat:'Fat', nutr_satfat:'Saturated Fat', nutr_carbs:'Carbohydrates', nutr_sugar:'Sugars', nutr_fiber:'Fiber', nutr_protein:'Protein', nutr_sodium:'Sodium'
 },
 hi: {
   ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
@@ -383,7 +397,8 @@ hi: {
   risk_high:'उच्च', risk_mod:'मध्यम', risk_low:'कम', risk_good:'अच्छा',
   no_concerns_t:'कोई बड़ी चिंता नहीं मिली', no_concerns_d:'उपलब्ध डेटा के आधार पर, इस उत्पाद में कोई महत्वपूर्ण फ्लैग नहीं है।',
   good_contributed_d:'इस कारक ने स्कोर में सकारात्मक योगदान दिया।',
-  unnamed_product:'अज्ञात उत्पाद', barcode_label:'बारकोड'
+  unnamed_product:'अज्ञात उत्पाद', barcode_label:'बारकोड',
+  nutrition_head:'पोषण तथ्य (प्रति 100g)', nutr_energy:'ऊर्जा', nutr_fat:'फैट', nutr_satfat:'सैचुरेटेड फैट', nutr_carbs:'कार्बोहाइड्रेट', nutr_sugar:'शुगर', nutr_fiber:'फाइबर', nutr_protein:'प्रोटीन', nutr_sodium:'सोडियम'
 },
 te: {
   ob1_title:'ఏదైనా బార్‌కోడ్ స్కాన్ చేయండి', ob1_desc:'భారతదేశంలో అమ్ముడయ్యే ఏదైనా ప్యాకేజ్డ్ ఫుడ్ ప్రొడక్ట్‌పై మీ కెమెరాను పాయింట్ చేసి తక్షణమే తనిఖీ చేయండి.',
@@ -425,7 +440,8 @@ te: {
   risk_high:'అధికం', risk_mod:'మధ్యస్థం', risk_low:'తక్కువ', risk_good:'మంచిది',
   no_concerns_t:'ప్రధాన ఆందోళనలు ఏవీ కనుగొనబడలేదు', no_concerns_d:'అందుబాటులో ఉన్న డేటా ఆధారంగా, ఈ ఉత్పత్తిలో ముఖ్యమైన ఫ్లాగ్‌లు లేవు.',
   good_contributed_d:'ఈ అంశం స్కోర్‌కు సానుకూలంగా దోహదపడింది.',
-  unnamed_product:'పేరు తెలియని ఉత్పత్తి', barcode_label:'బార్‌కోడ్'
+  unnamed_product:'పేరు తెలియని ఉత్పత్తి', barcode_label:'బార్‌కోడ్',
+  nutrition_head:'పోషకాహార వివరాలు (100g కి)', nutr_energy:'శక్తి', nutr_fat:'కొవ్వు', nutr_satfat:'సంతృప్త కొవ్వు', nutr_carbs:'కార్బోహైడ్రేట్లు', nutr_sugar:'షుగర్', nutr_fiber:'ఫైబర్', nutr_protein:'ప్రోటీన్', nutr_sodium:'సోడియం'
 }
 };
 let currentLang = 'en';
@@ -1005,6 +1021,10 @@ function renderScore(product, barcode){
   document.getElementById('dialTag').textContent = tierLabel(tier.key);
   const deg = Math.round((score/100)*360);
   document.getElementById('dial').style.background = `conic-gradient(${tier.color} 0deg ${deg}deg, #E8E2CF ${deg}deg 360deg)`;
+  const dialEl = document.getElementById('dial');
+  dialEl.classList.remove('reveal');
+  void dialEl.offsetWidth;
+  dialEl.classList.add('reveal');
   const pillsRow = document.getElementById('pillsRow'); pillsRow.innerHTML = '';
   flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = flagLabel(f).title; pillsRow.appendChild(el); });
   goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = goodFlagLabel(g); pillsRow.appendChild(el); });
@@ -1012,6 +1032,22 @@ function renderScore(product, barcode){
   const nutri = (product.nutriscore_grade || '?').toUpperCase();
   const nova = product.nova_group || '?';
   listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>${t('nutriscore_label')}</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>${t('nova_label')}</span><span>${t('group_label')} ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>${t('additives_label')}</span><span>${flags.length}</span></div>`;
+  document.getElementById('nutritionHeadLabel').textContent = t('nutrition_head');
+  const nuts = product.nutriments || {};
+  const fmt = (val, unit) => (val != null && !isNaN(val)) ? `${Number(val).toFixed(1)}${unit}` : '—';
+  const nutritionRows = [
+    [t('nutr_energy'), (nuts['energy-kcal_100g'] != null ? Math.round(nuts['energy-kcal_100g']) + ' kcal' : (nuts.energy_100g != null ? Math.round(nuts.energy_100g / 4.184) + ' kcal' : '—')), false],
+    [t('nutr_fat'), fmt(nuts.fat_100g, 'g'), false],
+    [t('nutr_satfat'), fmt(nuts['saturated-fat_100g'], 'g'), true],
+    [t('nutr_carbs'), fmt(nuts.carbohydrates_100g, 'g'), false],
+    [t('nutr_sugar'), fmt(nuts.sugars_100g, 'g'), true],
+    [t('nutr_fiber'), fmt(nuts.fiber_100g, 'g'), false],
+    [t('nutr_protein'), fmt(nuts.proteins_100g, 'g'), false],
+    [t('nutr_sodium'), (nuts.sodium_100g != null ? Math.round(nuts.sodium_100g * 1000) + ' mg' : '—'), false]
+  ];
+  document.getElementById('nutritionRows').innerHTML = nutritionRows.map(([label, val, indent]) =>
+    `<div class="nutrition-row${indent ? ' indent' : ''}"><span>${indent ? '– ' : ''}${label}</span><span class="v">${val}</span></div>`
+  ).join('');
   document.getElementById('bdSub').textContent = t('factors_affected_tpl').replace('{n}', flags.length);
   const acc = document.getElementById('accordionList'); acc.innerHTML = '';
   if(flags.length === 0){ acc.innerHTML = `<div class="acc-item"><div class="t">${t('no_concerns_t')}</div><div class="d">${t('no_concerns_d')}</div></div>`; }
