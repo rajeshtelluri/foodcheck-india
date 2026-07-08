@@ -4,21 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FoodCheck India</title>
-<meta name="description" content="Scan any packaged food barcode in India and get an instant Swaasth Score based on Nutri-Score, NOVA processing level, additives, sugar & sodium — free, powered by Open Food Facts.">
-<meta property="og:title" content="FoodCheck India — Barcode Health Scanner">
-<meta property="og:description" content="Scan any packaged food barcode and get an instant Swaasth Score. Free, no ads, powered by Open Food Facts.">
-<meta property="og:image" content="/icon-512.png">
-<meta property="og:type" content="website">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#161B33">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FoodCheck">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{--indigo:#161B33;--indigo-2:#232B52;--turmeric:#F0A93C;--saffron:#E2582A;--leaf:#4E9A55;--paper:#F5F1E6;--amber-dim:#8C6A2E;--red:#D14545;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -28,21 +16,8 @@
   .brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;}
   .brand span{color:var(--turmeric);}
   .back-btn{background:none;border:none;color:#fff;font-size:14px;cursor:pointer;display:none;}
-  .hist-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
-  .hist-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
-  .hist-list{flex:1;overflow-y:auto;padding:12px 18px;}
-  .hist-empty{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
-  .hist-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;cursor:pointer;}
-  .hist-score{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
-  .hist-info{flex:1;min-width:0;}
-  .hist-name{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .hist-meta{font-size:11px;color:#8A8A78;margin-top:2px;}
-  .clear-hist-btn{margin:0 18px 16px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--red);border:1px solid #F2D2CB;}
   .screen{flex:1;display:none;flex-direction:column;}
-  .screen.active{display:flex;animation:screenFadeIn 0.28s ease;}
-  @keyframes screenFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes dialPop{0%{transform:scale(0.7);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
-  .dial.reveal{animation:dialPop 0.45s cubic-bezier(.34,1.56,.64,1);}
+  .screen.active{display:flex;}
   #scan-screen{flex:1;}
   #reader{width:100%;background:#000;min-height:280px;}
   #reader video{border-radius:0 !important;}
@@ -77,12 +52,6 @@
   .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;}
   .dot.r{background:var(--red);} .dot.g{background:var(--leaf);} .dot.y{background:var(--turmeric);}
   .breakdown-btn,.scan-again-btn{margin:14px 18px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
-  .nutrition-panel{background:#fff;border-top:1px solid #E9E3D0;padding:14px 18px 4px;}
-  .nutrition-head{font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;margin-bottom:8px;color:#4A4A3E;}
-  .nutrition-row{display:flex;justify-content:space-between;padding:7px 0;font-size:12px;border-bottom:1px solid #F0ECDD;}
-  .nutrition-row:last-child{border-bottom:none;}
-  .nutrition-row.indent{padding-left:14px;color:#7A7A68;font-size:11.5px;}
-  .nutrition-row .v{font-weight:600;color:#1A1A1A;}
   .breakdown-btn{background:var(--saffron);color:#fff;}
   .scan-again-btn{background:var(--indigo);color:#fff;}
   .bd-head{padding:16px 18px;background:var(--saffron);color:#fff;}
@@ -96,715 +65,58 @@
   .risk-high{background:#FBE2DE;color:var(--red);}
   .risk-mod{background:#FCEAD1;color:var(--amber-dim);}
   .risk-low{background:#E8F3E3;color:var(--leaf);}
-  .fav-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#C9C2A8;line-height:1;padding:0;margin-left:auto;}
-  .fav-btn.active{color:var(--turmeric);}
-  .fav-head{padding:16px 18px;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;background:#fff;border-bottom:1px solid #E9E3D0;}
-  .fav-list{flex:1;overflow-y:auto;padding:12px 18px;}
-  .fav-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:10px 12px;margin-bottom:10px;}
-  .fav-item .hist-info{cursor:pointer;}
-  .fav-remove{background:none;border:none;font-size:16px;cursor:pointer;color:var(--turmeric);flex-shrink:0;}
-  .home-fav-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
-  .home-fav-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
-  .home-fav-list{margin-top:12px;}
-  .settings-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;display:none;}
-  #profile-screen{padding:30px 24px;align-items:center;text-align:center;}
-  .profile-avatar{width:76px;height:76px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:28px;overflow:hidden;}
-  .profile-avatar img{width:100%;height:100%;object-fit:cover;}
-  .profile-name{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;margin-top:14px;}
-  .profile-email{font-size:12px;color:#8A8A78;margin-top:2px;}
-  .profile-guest-note{font-size:12px;color:#8A8A78;margin-top:10px;line-height:1.6;padding:0 10px;}
-  .profile-actions{width:100%;margin-top:28px;display:flex;flex-direction:column;gap:10px;}
-  .profile-btn{padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;}
-  .profile-btn.neutral{background:#fff;border:1px solid #DFD9C4;color:#1A1A1A;}
-  .profile-btn.danger{background:#fff;border:1px solid #F2D2CB;color:var(--red);}
-  .profile-btn.primary{background:var(--indigo);color:#fff;border:none;}
-  .profile-version{margin-top:24px;font-size:10.5px;color:#B8B2A0;}
-  .alt-btn{margin:0 18px 14px;padding:12px;border-radius:10px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;background:#EEF6EC;color:var(--leaf);border:1px solid #CFE7CB;display:none;}
-  .alt-head{padding:16px 18px;background:var(--leaf);color:#fff;}
-  .alt-head .k{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;}
-  .alt-head .v{font-size:11px;opacity:.9;margin-top:3px;}
-  .alt-list{padding:14px 18px;overflow-y:auto;flex:1;}
-  .alt-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
-  .alt-loading{text-align:center;color:#8A8A78;font-size:12.5px;padding:40px 20px;}
-  #search-screen{padding:0;}
-  .search-head{padding:14px 18px;background:#fff;border-bottom:1px solid #E9E3D0;}
-  .search-head input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #DFD9C4;font-size:14px;background:var(--paper);}
-  .search-results{flex:1;overflow-y:auto;padding:12px 18px;}
-  .search-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;}
-  #compare-screen{padding:16px 18px;overflow-y:auto;}
-  .compare-slots{display:flex;gap:10px;}
-  .compare-slot{flex:1;background:#fff;border:2px dashed #DFD9C4;border-radius:12px;padding:16px 10px;text-align:center;font-size:11.5px;color:#8A8A78;cursor:pointer;min-height:90px;display:flex;align-items:center;justify-content:center;}
-  .compare-slot.filled{border-style:solid;border-color:#E9E3D0;flex-direction:column;gap:6px;cursor:default;}
-  .compare-slot-score{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:13px;}
-  .compare-slot-name{font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;color:#1A1A1A;padding:0 4px;}
-  .compare-slot-remove{font-size:10.5px;color:var(--red);text-decoration:underline;cursor:pointer;margin-top:2px;}
-  .compare-picker{margin-top:14px;background:#fff;border-radius:12px;border:1px solid #E9E3D0;padding:12px;}
-  .compare-picker input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid #DFD9C4;font-size:13px;background:var(--paper);}
-  .compare-picker-results{margin-top:10px;max-height:240px;overflow-y:auto;}
-  .compare-table{margin-top:18px;background:#fff;border-radius:12px;border:1px solid #E9E3D0;overflow:hidden;}
-  .compare-row{display:flex;border-bottom:1px solid #F0ECDD;}
-  .compare-row:last-child{border-bottom:none;}
-  .compare-cell{flex:1;padding:10px 12px;font-size:12px;text-align:center;}
-  .compare-cell.label{flex:0 0 90px;text-align:left;color:#8A8A78;font-size:11px;background:var(--paper);}
-  .compare-row.header .compare-cell{font-family:'Sora',sans-serif;font-weight:700;font-size:11.5px;}
   #notfound-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:10px;}
   #notfound-screen .icon{font-size:34px;}
   #notfound-screen h3{font-family:'Sora',sans-serif;font-size:15px;}
   #notfound-screen p{font-size:12px;color:#8A8A78;line-height:1.5;}
-  #onboarding-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
-  .ob-icon{font-size:52px;margin-bottom:10px;}
-  .ob-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#1A1A1A;}
-  .ob-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:10px;padding:0 8px;}
-  .ob-dots{display:flex;gap:6px;margin-top:26px;}
-  .ob-dot{width:7px;height:7px;border-radius:50%;background:#DFD9C4;}
-  .ob-dot.on{background:var(--saffron);width:18px;border-radius:4px;}
-  .ob-next{margin-top:26px;width:100%;background:var(--indigo);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
-  .ob-skip{margin-top:12px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
-  #login-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
-  .login-icon{font-size:48px;margin-bottom:6px;}
-  .login-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
-  .login-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:8px;padding:0 6px;}
-  .google-btn{margin-top:28px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #DFD9C4;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:#1A1A1A;}
-  .google-btn svg{width:18px;height:18px;}
-  .guest-btn{margin-top:14px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
-  .user-chip{display:none;align-items:center;gap:6px;cursor:pointer;}
-  .user-chip img{width:26px;height:26px;border-radius:50%;}
-  .user-chip span{font-size:11.5px;font-weight:600;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .home-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;display:none;}
-  #home-screen{padding:20px 18px;overflow-y:auto;}
-  .home-greet{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#1A1A1A;line-height:1.4;}
-  .home-stats{display:flex;gap:10px;margin-top:16px;}
-  .stat-card{flex:1;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:14px;text-align:center;}
-  .stat-num{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);}
-  .stat-label{font-size:10.5px;color:#8A8A78;margin-top:4px;}
-  .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
-  .home-cta-secondary{margin-top:10px;background:#fff;color:var(--indigo);border:1px solid #DFD9C4;padding:13px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
-  .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
-  .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
-  .home-recent-list{margin-top:12px;}
-  .home-support{margin-top:24px;text-align:center;font-size:11.5px;color:#8A8A78;}
-  .home-support a{color:var(--saffron);text-decoration:underline;}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
     <div class="brand">FoodCheck<span>India</span></div>
-    <div class="user-chip" id="userChip" title="Profile"><img id="userAvatar" src="" alt=""><span id="userName"></span></div>
-    <button class="settings-btn" id="langBtn" title="Language" aria-label="Change language" style="display:none;">🌐</button>
-    <button class="settings-btn" id="settingsBtn" title="Profile & Settings" aria-label="Profile and settings">⚙️</button>
-    <button class="home-btn" id="homeBtn" title="Home" aria-label="Go to home screen">🏠</button>
-    <button class="back-btn" id="backBtn">← Back</button>
+    <button class="back-btn" id="backBtn">← Scan again</button>
   </div>
-  <div class="screen" id="home-screen">
-    <div class="home-greet" id="homeGreet">Welcome!</div>
-    <div class="home-stats">
-      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label" id="statScannedLabel">Products scanned</div></div>
-      <div class="stat-card"><div class="stat-num" id="statAvg">—</div><div class="stat-label" id="statAvgLabel">Avg Swaasth Score</div></div>
-    </div>
-    <div class="home-cta" id="homeScanBtn">📷 Scan a Product</div>
-    <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
-    <div class="home-cta-secondary" id="homeSearchBtn">🔍 Search by product name</div>
-    <div class="home-cta-secondary" id="homeCompareBtn">⚖️ Compare Products</div>
-    <div class="home-recent-head"><span id="recentScansLabel">Recent scans</span> <span id="homeViewAll">View all</span></div>
-    <div class="home-recent-list" id="homeRecentList"></div>
-    <div class="home-fav-head"><span id="yourFavoritesLabel">Your Favorites</span> <span id="homeFavViewAll">View all</span></div>
-    <div class="home-fav-list" id="homeFavList"></div>
-    <div class="home-support"><span id="needHelpLabel">Need help?</span> <a href="mailto:foodcheckindia.support@gmail.com">foodcheckindia.support@gmail.com</a></div>
-  </div>
-  <div class="screen active" id="onboarding-screen">
-    <div class="ob-icon" id="obIcon">📷</div>
-    <div class="ob-title" id="obTitle">Scan any barcode</div>
-    <div class="ob-desc" id="obDesc">Point your camera at any packaged food product sold in India to check it instantly.</div>
-    <div class="ob-dots"><span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
-    <button class="ob-next" id="obNextBtn">Next</button>
-    <button class="ob-skip" id="obSkipBtn">Skip</button>
-  </div>
-  <div class="screen" id="login-screen">
-    <div class="login-icon">🇮🇳</div>
-    <div class="login-title" id="loginTitle">Sign in to FoodCheck India</div>
-    <div class="login-desc" id="loginDesc">Sign in with Google to personalize your FoodCheck India experience.</div>
-    <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
-    <button class="guest-btn" id="guestBtn">Continue as guest</button>
-  </div>
-  <div class="screen" id="scan-screen">
+  <div class="screen active" id="scan-screen">
     <div id="reader"></div>
-    <p class="scan-hint" id="scanHint">Point your camera at a barcode</p>
+    <p class="scan-hint">Point your camera at a barcode</p>
     <div class="manual-toggle"><button id="manualToggleBtn">or type a barcode number manually</button></div>
     <div class="manual-form" id="manualForm">
       <input type="text" id="manualInput" placeholder="e.g. 8901058851397" inputmode="numeric">
       <button id="manualSubmit">Check product</button>
     </div>
   </div>
-  <div class="screen" id="loading-screen"><div class="spinner"></div><p id="loadingText">Looking up product…</p></div>
+  <div class="screen" id="loading-screen"><div class="spinner"></div><p>Looking up product…</p></div>
   <div class="screen" id="notfound-screen">
     <div class="icon">📦</div>
-    <h3 id="notfoundTitle">Not in our database yet</h3>
+    <h3>Not in our database yet</h3>
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
   </div>
   <div class="screen" id="score-screen">
-    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span><button class="fav-btn" id="favBtn" title="Save to favorites" aria-label="Save to favorites">☆</button></div>
+    <div class="score-top"><span class="badge-fssai" id="dataBadge">Open Food Facts</span></div>
     <div style="padding:0 18px;">
       <div class="prod-name" id="prodName">—</div>
       <div class="prod-sub" id="prodSub">—</div>
     </div>
     <div class="dial-wrap">
       <div class="dial" id="dial"><div class="dial-inner"><div class="dial-num" id="dialNum">—</div><div class="dial-tag" id="dialTag">—</div></div></div>
-      <div class="swaasth-label" id="swaasthLabel">Swaasth Score</div>
+      <div class="swaasth-label">Swaasth Score</div>
     </div>
     <div class="pills" id="pillsRow"></div>
     <div class="list" id="listRows"></div>
-    <div class="nutrition-panel" id="nutritionPanel">
-      <div class="nutrition-head" id="nutritionHeadLabel">Nutrition Facts (per 100g)</div>
-      <div id="nutritionRows"></div>
-    </div>
-    <div class="alt-btn" id="altBtn">🥗 See Healthier Alternatives</div>
     <div class="breakdown-btn" id="breakdownBtn">See full ingredient breakdown</div>
     <div class="scan-again-btn" id="scanAgainBtn">Scan another product</div>
   </div>
-  <div class="screen" id="alternatives-screen">
-    <div class="alt-head"><div class="k" id="altHeadLabel">Healthier picks</div><div class="v" id="altSub">Similar products with better scores</div></div>
-    <div class="alt-list" id="altList"></div>
-  </div>
-  <div class="screen" id="search-screen">
-    <div class="search-head">
-      <input type="text" id="searchInput" placeholder="e.g. Maggi noodles, Britannia biscuits" inputmode="search">
-    </div>
-    <div class="search-results" id="searchResults"></div>
-  </div>
-  <div class="screen" id="compare-screen">
-    <div class="compare-slots">
-      <div class="compare-slot" id="slotA" data-slot="A">+ Add Product A</div>
-      <div class="compare-slot" id="slotB" data-slot="B">+ Add Product B</div>
-    </div>
-    <div class="compare-picker" id="comparePicker" style="display:none;">
-      <input type="text" id="comparePickerInput" placeholder="Search product name…">
-      <div class="compare-picker-results" id="comparePickerResults"></div>
-    </div>
-    <div class="compare-table" id="compareTable"></div>
-  </div>
   <div class="screen" id="breakdown-screen">
-    <div class="bd-head"><div class="k" id="whyScoreLabel">Why this score?</div><div class="v" id="bdSub">—</div></div>
+    <div class="bd-head"><div class="k">Why this score?</div><div class="v" id="bdSub">—</div></div>
     <div class="accordion" id="accordionList"></div>
-  </div>
-  <div class="screen" id="history-screen">
-    <div class="hist-head" id="histHeadLabel">Recent scans</div>
-    <div class="hist-list" id="histList"></div>
-    <div class="clear-hist-btn" id="clearHistBtn">Clear history</div>
-  </div>
-  <div class="screen" id="favorites-screen">
-    <div class="fav-head" id="favHeadLabel">Your Favorites</div>
-    <div class="fav-list" id="favList"></div>
-  </div>
-  <div class="screen" id="profile-screen">
-    <div class="profile-avatar" id="profileAvatarWrap">👤</div>
-    <div class="profile-name" id="profileName">Guest</div>
-    <div class="profile-email" id="profileEmail"></div>
-    <div class="profile-guest-note" id="profileGuestNote" style="display:none;">You're using FoodCheck India as a guest. Sign in with Google to personalize your account.</div>
-    <div class="profile-actions">
-      <div class="profile-btn primary" id="profileSignInBtn" style="display:none;">Sign in with Google</div>
-      <div class="profile-btn neutral" id="installAppBtn" style="display:none;">📲 Install App</div>
-      <div class="profile-btn neutral" id="profileClearHistBtn">Clear scan history</div>
-      <div class="profile-btn neutral" id="profileClearFavBtn">Clear all favorites</div>
-      <div class="profile-btn danger" id="profileSignOutBtn" style="display:none;">Sign out</div>
-    </div>
-    <div class="profile-version">FoodCheck India · <span id="profileNeedHelpLabel">Need help?</span> <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);" id="profileContactLink">Contact support</a></div>
   </div>
 </div>
 <script>
-const screens = ['onboarding-screen','login-screen','home-screen','scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen','history-screen','favorites-screen','profile-screen','alternatives-screen','search-screen','compare-screen'];
-const translations = {
-en: {
-  ob1_title:'Scan any barcode', ob1_desc:'Point your camera at any packaged food product sold in India to check it instantly.',
-  ob2_title:'Get your Swaasth Score', ob2_desc:'A 0–100 rating built from Nutri-Score, NOVA processing group, additives, sugar & sodium levels.',
-  ob3_title:'Track & discover better picks', ob3_desc:'Your recent scans are saved so you can revisit them, and we surface healthier alternatives.',
-  ob_next:'Next', ob_get_started:'Get Started', ob_skip:'Skip',
-  login_title:'Sign in to FoodCheck India', login_desc:'Sign in with Google to personalize your FoodCheck India experience.',
-  guest_btn:'Continue as guest',
-  stat_scanned:'Products scanned', stat_avg:'Avg Swaasth Score',
-  scan_cta:'📷 Scan a Product', manual_cta:'🔢 Enter barcode manually', search_cta:'🔍 Search by product name', compare_cta:'⚖️ Compare Products',
-  recent_scans:'Recent scans', view_all:'View all', your_favorites:'Your Favorites', need_help:'Need help?',
-  scan_hint:'Point your camera at a barcode', manual_toggle:'or type a barcode number manually', manual_placeholder:'e.g. 8901058851397', manual_submit:'Check product',
-  loading_text:'Looking up product…',
-  notfound_title:'Not in our database yet', notfound_msg:"This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.",
-  notfound_barcode_msg:"This barcode isn't in Open Food Facts' database yet.",
-  network_error:'Network error: ',
-  swaasth_label:'Swaasth Score',
-  breakdown_btn:'See full ingredient breakdown', scan_again_btn:'Scan another product', alt_btn:'🥗 See Healthier Alternatives',
-  why_score:'Why this score?',
-  hist_head:'Recent scans', clear_hist:'Clear history', hist_empty:'No scans yet. Products you check will show up here.', hist_empty_home:'No scans yet — try your first one!',
-  fav_head:'Your Favorites', fav_empty:'No favorites yet. Tap the ☆ on any scanned product to save it here.', fav_empty_home:'No favorites yet — tap the ☆ on any product to save it.',
-  profile_guest_note:"You're using FoodCheck India as a guest. Sign in with Google to personalize your account.",
-  profile_signin:'Sign in with Google', profile_install:'📲 Install App', profile_clear_hist:'Clear scan history', profile_clear_fav:'Clear all favorites', profile_signout:'Sign out',
-  profile_need_help:'Need help?', profile_contact:'Contact support', profile_guest_name:'Guest', profile_account_name:'Account',
-  alt_head:'Healthier picks', alt_sub:'Similar products with better scores', alt_loading:'Looking for better options…', alt_none:'No better-scoring alternatives found in this category yet.', alt_nocats:'Not enough category data to suggest alternatives.', alt_fail:"Couldn't load alternatives right now. Try again later.",
-  search_placeholder:'e.g. Maggi noodles, Britannia biscuits', search_typing:'Keep typing… (min 3 characters)', search_searching:'Searching…', search_none:'No products found. Try a different search term.', search_fail:'Search failed. Check your connection and try again.',
-  compare_slot_tpl:'+ Add Product {s}', compare_remove:'Remove', compare_search_placeholder:'Search product name…', compare_pick_hint:'Type to search, or scan a product first to see it here.', compare_search_none:'No products found.', compare_search_fail:'Search failed. Try again.', loading_product:'Loading product…', could_not_load:'Could not load that product.',
-  tier_excellent:'Excellent', tier_good:'Good', tier_fair:'Fair', tier_poor:'Poor',
-  nutriscore_label:'Nutri-Score', nova_label:'Processing (NOVA)', group_label:'Group', additives_label:'Additives flagged',
-  factors_affected_tpl:'{n} factor(s) affected the rating',
-  compare_score:'Swaasth Score', compare_rating:'Rating', compare_nutri:'Nutri-Score', compare_nova:'NOVA Group', compare_sugar:'Sugar/100g', compare_sodium:'Sodium/100g', compare_additives:'Additives',
-  flag_nova4_t:'Ultra-processed (NOVA 4)', flag_nova4_d:'Highly industrial formulation with additives rarely used in home cooking.',
-  flag_nova3_t:'Processed food (NOVA 3)', flag_nova3_d:'Contains added oil, sugar or salt beyond the raw product.',
-  flag_additives_high_t:'{n} additives detected', flag_additives_high_d:'A high additive count often signals a heavily engineered product.',
-  flag_additives_mod_t:'{n} additive(s) detected', flag_additives_mod_d:'Present within typical packaged-food range.',
-  flag_sodium_t:'Sodium {n}mg/100g', flag_sodium_high_d:'High sodium. ICMR recommends under 2000mg total sodium per day.', flag_sodium_mod_d:'Moderate sodium level.',
-  flag_sugar_t:'Sugar {n}g/100g', flag_sugar_high_d:'High sugar under front-of-pack thresholds (>22.5g/100g).', flag_sugar_mod_d:'Moderate sugar content.',
-  good_minimal:'Minimally processed', good_noadditives:'No additives listed', good_lowsodium:'Low sodium', good_lowsugar:'Low sugar', good_organic:'Organic certified',
-  risk_high:'High', risk_mod:'Moderate', risk_low:'Low', risk_good:'Good',
-  no_concerns_t:'No major concerns found', no_concerns_d:'Based on available data, this product has no significant flags.',
-  good_contributed_d:'This factor positively contributed to the score.',
-  unnamed_product:'Unnamed product', barcode_label:'Barcode',
-  nutrition_head:'Nutrition Facts (per 100g)', nutr_energy:'Energy', nutr_fat:'Fat', nutr_satfat:'Saturated Fat', nutr_carbs:'Carbohydrates', nutr_sugar:'Sugars', nutr_fiber:'Fiber', nutr_protein:'Protein', nutr_sodium:'Sodium'
-},
-hi: {
-  ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
-  ob2_title:'अपना स्वास्थ स्कोर पाएं', ob2_desc:'न्यूट्री-स्कोर, नोवा प्रोसेसिंग ग्रुप, एडिटिव्स, शुगर और सोडियम स्तर पर आधारित 0–100 की रेटिंग।',
-  ob3_title:'ट्रैक करें और बेहतर विकल्प खोजें', ob3_desc:'आपके हाल के स्कैन सेव हो जाते हैं ताकि आप उन्हें दोबारा देख सकें, और हम स्वास्थ्यवर्धक विकल्प भी दिखाते हैं।',
-  ob_next:'आगे', ob_get_started:'शुरू करें', ob_skip:'छोड़ें',
-  login_title:'FoodCheck India में साइन इन करें', login_desc:'अपने FoodCheck India अनुभव को व्यक्तिगत बनाने के लिए Google से साइन इन करें।',
-  guest_btn:'गेस्ट के रूप में जारी रखें',
-  stat_scanned:'स्कैन किए गए उत्पाद', stat_avg:'औसत स्वास्थ स्कोर',
-  scan_cta:'📷 उत्पाद स्कैन करें', manual_cta:'🔢 बारकोड नंबर मैन्युअली दर्ज करें', search_cta:'🔍 उत्पाद के नाम से खोजें', compare_cta:'⚖️ उत्पादों की तुलना करें',
-  recent_scans:'हाल के स्कैन', view_all:'सभी देखें', your_favorites:'आपके पसंदीदा', need_help:'मदद चाहिए?',
-  scan_hint:'कैमरे को बारकोड पर पॉइंट करें', manual_toggle:'या बारकोड नंबर मैन्युअली टाइप करें', manual_placeholder:'जैसे 8901058851397', manual_submit:'उत्पाद जांचें',
-  loading_text:'उत्पाद खोजा जा रहा है…',
-  notfound_title:'अभी हमारे डेटाबेस में नहीं है', notfound_msg:'यह उत्पाद अभी Open Food Facts की भारत सूची में नहीं है। कोई और उत्पाद आज़माएं, या खुद openfoodfacts.org पर जोड़कर मदद करें।',
-  notfound_barcode_msg:'यह बारकोड अभी Open Food Facts के डेटाबेस में नहीं है।',
-  network_error:'नेटवर्क त्रुटि: ',
-  swaasth_label:'स्वास्थ स्कोर',
-  breakdown_btn:'पूरा इंग्रेडिएंट विवरण देखें', scan_again_btn:'एक और उत्पाद स्कैन करें', alt_btn:'🥗 स्वास्थ्यवर्धक विकल्प देखें',
-  why_score:'यह स्कोर क्यों?',
-  hist_head:'हाल के स्कैन', clear_hist:'इतिहास साफ़ करें', hist_empty:'अभी तक कोई स्कैन नहीं। आपके द्वारा जांचे गए उत्पाद यहां दिखेंगे।', hist_empty_home:'अभी तक कोई स्कैन नहीं — अपना पहला स्कैन आज़माएं!',
-  fav_head:'आपके पसंदीदा', fav_empty:'अभी तक कोई पसंदीदा नहीं। किसी भी स्कैन किए गए उत्पाद पर ☆ टैप करें।', fav_empty_home:'अभी तक कोई पसंदीदा नहीं — किसी उत्पाद पर ☆ टैप करें।',
-  profile_guest_note:'आप FoodCheck India को गेस्ट के रूप में उपयोग कर रहे हैं। अपने खाते को व्यक्तिगत बनाने के लिए Google से साइन इन करें।',
-  profile_signin:'Google से साइन इन करें', profile_install:'📲 ऐप इंस्टॉल करें', profile_clear_hist:'स्कैन इतिहास साफ़ करें', profile_clear_fav:'सभी पसंदीदा हटाएं', profile_signout:'साइन आउट करें',
-  profile_need_help:'मदद चाहिए?', profile_contact:'सहायता से संपर्क करें', profile_guest_name:'गेस्ट', profile_account_name:'खाता',
-  alt_head:'स्वास्थ्यवर्धक विकल्प', alt_sub:'बेहतर स्कोर वाले समान उत्पाद', alt_loading:'बेहतर विकल्प खोजे जा रहे हैं…', alt_none:'इस श्रेणी में अभी बेहतर स्कोर वाला कोई विकल्प नहीं मिला।', alt_nocats:'विकल्प सुझाने के लिए पर्याप्त श्रेणी डेटा नहीं है।', alt_fail:'अभी विकल्प लोड नहीं हो पाए। बाद में फिर कोशिश करें।',
-  search_placeholder:'जैसे मैगी नूडल्स, ब्रिटानिया बिस्कुट', search_typing:'टाइप करते रहें… (कम से कम 3 अक्षर)', search_searching:'खोजा जा रहा है…', search_none:'कोई उत्पाद नहीं मिला। कोई और शब्द आज़माएं।', search_fail:'खोज विफल रही। अपना कनेक्शन जांचें और फिर कोशिश करें।',
-  compare_slot_tpl:'+ उत्पाद {s} जोड़ें', compare_remove:'हटाएं', compare_search_placeholder:'उत्पाद का नाम खोजें…', compare_pick_hint:'खोजने के लिए टाइप करें, या पहले कोई उत्पाद स्कैन करें।', compare_search_none:'कोई उत्पाद नहीं मिला।', compare_search_fail:'खोज विफल रही। फिर कोशिश करें।', loading_product:'उत्पाद लोड हो रहा है…', could_not_load:'वह उत्पाद लोड नहीं हो सका।',
-  tier_excellent:'उत्कृष्ट', tier_good:'अच्छा', tier_fair:'ठीक-ठाक', tier_poor:'खराब',
-  nutriscore_label:'न्यूट्री-स्कोर', nova_label:'प्रोसेसिंग (NOVA)', group_label:'ग्रुप', additives_label:'फ्लैग किए गए एडिटिव्स',
-  factors_affected_tpl:'{n} कारकों ने रेटिंग को प्रभावित किया',
-  compare_score:'स्वास्थ स्कोर', compare_rating:'रेटिंग', compare_nutri:'न्यूट्री-स्कोर', compare_nova:'NOVA ग्रुप', compare_sugar:'शुगर/100g', compare_sodium:'सोडियम/100g', compare_additives:'एडिटिव्स',
-  flag_nova4_t:'अति-प्रसंस्कृत (NOVA 4)', flag_nova4_d:'अत्यधिक औद्योगिक फॉर्मूलेशन जिसमें ऐसे एडिटिव्स होते हैं जो घर के खाने में शायद ही इस्तेमाल होते हैं।',
-  flag_nova3_t:'प्रोसेस्ड फूड (NOVA 3)', flag_nova3_d:'कच्चे उत्पाद से अधिक तेल, शुगर या नमक मिलाया गया है।',
-  flag_additives_high_t:'{n} एडिटिव्स पाए गए', flag_additives_high_d:'एडिटिव्स की अधिक संख्या अक्सर भारी इंजीनियर्ड उत्पाद का संकेत देती है।',
-  flag_additives_mod_t:'{n} एडिटिव(स्) पाए गए', flag_additives_mod_d:'यह सामान्य पैकेज्ड-फूड सीमा के भीतर है।',
-  flag_sodium_t:'सोडियम {n}mg/100g', flag_sodium_high_d:'उच्च सोडियम। ICMR प्रतिदिन 2000mg से कम कुल सोडियम की सिफारिश करता है।', flag_sodium_mod_d:'मध्यम सोडियम स्तर।',
-  flag_sugar_t:'शुगर {n}g/100g', flag_sugar_high_d:'फ्रंट-ऑफ-पैक सीमा (>22.5g/100g) से अधिक शुगर।', flag_sugar_mod_d:'मध्यम शुगर मात्रा।',
-  good_minimal:'न्यूनतम प्रसंस्करण', good_noadditives:'कोई एडिटिव सूचीबद्ध नहीं', good_lowsodium:'कम सोडियम', good_lowsugar:'कम शुगर', good_organic:'ऑर्गेनिक प्रमाणित',
-  risk_high:'उच्च', risk_mod:'मध्यम', risk_low:'कम', risk_good:'अच्छा',
-  no_concerns_t:'कोई बड़ी चिंता नहीं मिली', no_concerns_d:'उपलब्ध डेटा के आधार पर, इस उत्पाद में कोई महत्वपूर्ण फ्लैग नहीं है।',
-  good_contributed_d:'इस कारक ने स्कोर में सकारात्मक योगदान दिया।',
-  unnamed_product:'अज्ञात उत्पाद', barcode_label:'बारकोड',
-  nutrition_head:'पोषण तथ्य (प्रति 100g)', nutr_energy:'ऊर्जा', nutr_fat:'फैट', nutr_satfat:'सैचुरेटेड फैट', nutr_carbs:'कार्बोहाइड्रेट', nutr_sugar:'शुगर', nutr_fiber:'फाइबर', nutr_protein:'प्रोटीन', nutr_sodium:'सोडियम'
-},
-te: {
-  ob1_title:'ఏదైనా బార్‌కోడ్ స్కాన్ చేయండి', ob1_desc:'భారతదేశంలో అమ్ముడయ్యే ఏదైనా ప్యాకేజ్డ్ ఫుడ్ ప్రొడక్ట్‌పై మీ కెమెరాను పాయింట్ చేసి తక్షణమే తనిఖీ చేయండి.',
-  ob2_title:'మీ స్వాస్థ్ స్కోర్ పొందండి', ob2_desc:'న్యూట్రి-స్కోర్, NOVA ప్రాసెసింగ్ గ్రూప్, యాడిటివ్స్, షుగర్ & సోడియం స్థాయిల ఆధారంగా 0–100 రేటింగ్.',
-  ob3_title:'ట్రాక్ చేయండి & మంచి ఎంపికలను కనుగొనండి', ob3_desc:'మీరు తిరిగి చూడగలిగేలా మీ ఇటీవలి స్కాన్‌లు సేవ్ చేయబడతాయి, మరియు మేము ఆరోగ్యకరమైన ప్రత్యామ్నాయాలను చూపిస్తాము.',
-  ob_next:'తదుపరి', ob_get_started:'ప్రారంభించండి', ob_skip:'దాటవేయండి',
-  login_title:'FoodCheck India లోకి సైన్ ఇన్ చేయండి', login_desc:'మీ FoodCheck India అనుభవాన్ని వ్యక్తిగతీకరించడానికి Google తో సైన్ ఇన్ చేయండి.',
-  guest_btn:'అతిథిగా కొనసాగండి',
-  stat_scanned:'స్కాన్ చేసిన ఉత్పత్తులు', stat_avg:'సగటు స్వాస్థ్ స్కోర్',
-  scan_cta:'📷 ఉత్పత్తిని స్కాన్ చేయండి', manual_cta:'🔢 బార్‌కోడ్ నంబర్ మాన్యువల్‌గా నమోదు చేయండి', search_cta:'🔍 ఉత్పత్తి పేరుతో వెతకండి', compare_cta:'⚖️ ఉత్పత్తులను పోల్చండి',
-  recent_scans:'ఇటీవలి స్కాన్‌లు', view_all:'అన్నీ చూడండి', your_favorites:'మీ ఇష్టమైనవి', need_help:'సహాయం కావాలా?',
-  scan_hint:'మీ కెమెరాను బార్‌కోడ్‌పై పాయింట్ చేయండి', manual_toggle:'లేదా బార్‌కోడ్ నంబర్‌ను మాన్యువల్‌గా టైప్ చేయండి', manual_placeholder:'ఉదా. 8901058851397', manual_submit:'ఉత్పత్తిని తనిఖీ చేయండి',
-  loading_text:'ఉత్పత్తి కోసం చూస్తున్నాం…',
-  notfound_title:'ఇంకా మా డేటాబేస్‌లో లేదు', notfound_msg:'ఈ ఉత్పత్తి ఇంకా Open Food Facts భారత జాబితాలో లేదు. వేరే ఉత్పత్తిని ప్రయత్నించండి, లేదా కవరేజ్ పెంచడానికి openfoodfacts.org లో మీరే జోడించండి.',
-  notfound_barcode_msg:'ఈ బార్‌కోడ్ ఇంకా Open Food Facts డేటాబేస్‌లో లేదు.',
-  network_error:'నెట్‌వర్క్ లోపం: ',
-  swaasth_label:'స్వాస్థ్ స్కోర్',
-  breakdown_btn:'పూర్తి పదార్థాల విశ్లేషణ చూడండి', scan_again_btn:'మరో ఉత్పత్తిని స్కాన్ చేయండి', alt_btn:'🥗 ఆరోగ్యకరమైన ప్రత్యామ్నాయాలు చూడండి',
-  why_score:'ఈ స్కోర్ ఎందుకు?',
-  hist_head:'ఇటీవలి స్కాన్‌లు', clear_hist:'చరిత్రను క్లియర్ చేయండి', hist_empty:'ఇంకా స్కాన్‌లు లేవు. మీరు తనిఖీ చేసిన ఉత్పత్తులు ఇక్కడ కనిపిస్తాయి.', hist_empty_home:'ఇంకా స్కాన్‌లు లేవు — మీ మొదటి స్కాన్ ప్రయత్నించండి!',
-  fav_head:'మీ ఇష్టమైనవి', fav_empty:'ఇంకా ఇష్టమైనవి లేవు. దీన్ని సేవ్ చేయడానికి ఏదైనా స్కాన్ చేసిన ఉత్పత్తిపై ☆ నొక్కండి.', fav_empty_home:'ఇంకా ఇష్టమైనవి లేవు — సేవ్ చేయడానికి ఏదైనా ఉత్పత్తిపై ☆ నొక్కండి.',
-  profile_guest_note:'మీరు FoodCheck India ను అతిథిగా ఉపయోగిస్తున్నారు. మీ ఖాతాను వ్యక్తిగతీకరించడానికి Google తో సైన్ ఇన్ చేయండి.',
-  profile_signin:'Google తో సైన్ ఇన్ చేయండి', profile_install:'📲 యాప్‌ను ఇన్‌స్టాల్ చేయండి', profile_clear_hist:'స్కాన్ చరిత్రను క్లియర్ చేయండి', profile_clear_fav:'అన్ని ఇష్టమైనవి తొలగించండి', profile_signout:'సైన్ అవుట్ చేయండి',
-  profile_need_help:'సహాయం కావాలా?', profile_contact:'మద్దతును సంప్రదించండి', profile_guest_name:'అతిథి', profile_account_name:'ఖాతా',
-  alt_head:'ఆరోగ్యకరమైన ఎంపికలు', alt_sub:'మెరుగైన స్కోర్‌లతో సారూప్య ఉత్పత్తులు', alt_loading:'మెరుగైన ఎంపికల కోసం చూస్తున్నాం…', alt_none:'ఈ వర్గంలో ఇంకా మెరుగైన స్కోర్ ఉన్న ప్రత్యామ్నాయం కనుగొనబడలేదు.', alt_nocats:'ప్రత్యామ్నాయాలను సూచించడానికి తగినంత వర్గం డేటా లేదు.', alt_fail:'ప్రస్తుతం ప్రత్యామ్నాయాలను లోడ్ చేయలేకపోయాం. తర్వాత మళ్లీ ప్రయత్నించండి.',
-  search_placeholder:'ఉదా. మ్యాగీ నూడుల్స్, బ్రిటానియా బిస్కెట్స్', search_typing:'టైప్ చేస్తూ ఉండండి… (కనీసం 3 అక్షరాలు)', search_searching:'వెతుకుతున్నాం…', search_none:'ఉత్పత్తులు కనుగొనబడలేదు. వేరే పదాన్ని ప్రయత్నించండి.', search_fail:'వెతకడం విఫలమైంది. మీ కనెక్షన్‌ని తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.',
-  compare_slot_tpl:'+ ఉత్పత్తి {s} జోడించండి', compare_remove:'తీసివేయండి', compare_search_placeholder:'ఉత్పత్తి పేరును వెతకండి…', compare_pick_hint:'వెతకడానికి టైప్ చేయండి, లేదా ముందు ఒక ఉత్పత్తిని స్కాన్ చేయండి.', compare_search_none:'ఉత్పత్తులు కనుగొనబడలేదు.', compare_search_fail:'వెతకడం విఫలమైంది. మళ్లీ ప్రయత్నించండి.', loading_product:'ఉత్పత్తి లోడ్ అవుతోంది…', could_not_load:'ఆ ఉత్పత్తిని లోడ్ చేయలేకపోయాం.',
-  tier_excellent:'అద్భుతం', tier_good:'మంచిది', tier_fair:'పర్వాలేదు', tier_poor:'సరిగా లేదు',
-  nutriscore_label:'న్యూట్రి-స్కోర్', nova_label:'ప్రాసెసింగ్ (NOVA)', group_label:'గ్రూప్', additives_label:'గుర్తించిన యాడిటివ్స్',
-  factors_affected_tpl:'{n} అంశాలు రేటింగ్‌ను ప్రభావితం చేశాయి',
-  compare_score:'స్వాస్థ్ స్కోర్', compare_rating:'రేటింగ్', compare_nutri:'న్యూట్రి-స్కోర్', compare_nova:'NOVA గ్రూప్', compare_sugar:'షుగర్/100g', compare_sodium:'సోడియం/100g', compare_additives:'యాడిటివ్స్',
-  flag_nova4_t:'అతి-ప్రాసెస్డ్ (NOVA 4)', flag_nova4_d:'ఇంటి వంటలో అరుదుగా ఉపయోగించే యాడిటివ్స్‌తో అత్యధిక పారిశ్రామిక ఫార్ములేషన్.',
-  flag_nova3_t:'ప్రాసెస్డ్ ఫుడ్ (NOVA 3)', flag_nova3_d:'ముడి ఉత్పత్తి కంటే ఎక్కువ నూనె, షుగర్ లేదా ఉప్పు కలిపారు.',
-  flag_additives_high_t:'{n} యాడిటివ్స్ కనుగొనబడ్డాయి', flag_additives_high_d:'అధిక యాడిటివ్ సంఖ్య తరచుగా భారీగా ఇంజనీరింగ్ చేసిన ఉత్పత్తిని సూచిస్తుంది.',
-  flag_additives_mod_t:'{n} యాడిటివ్(లు) కనుగొనబడ్డాయి', flag_additives_mod_d:'సాధారణ ప్యాకేజ్డ్-ఫుడ్ పరిధిలో ఉంది.',
-  flag_sodium_t:'సోడియం {n}mg/100g', flag_sodium_high_d:'అధిక సోడియం. ICMR రోజుకు 2000mg లోపు మొత్తం సోడియంను సిఫారసు చేస్తుంది.', flag_sodium_mod_d:'మధ్యస్థ సోడియం స్థాయి.',
-  flag_sugar_t:'షుగర్ {n}g/100g', flag_sugar_high_d:'ఫ్రంట్-ఆఫ్-ప్యాక్ పరిమితి (>22.5g/100g) కంటే ఎక్కువ షుగర్.', flag_sugar_mod_d:'మధ్యస్థ షుగర్ మోతాదు.',
-  good_minimal:'కనిష్ట ప్రాసెసింగ్', good_noadditives:'యాడిటివ్స్ ఏవీ జాబితా చేయబడలేదు', good_lowsodium:'తక్కువ సోడియం', good_lowsugar:'తక్కువ షుగర్', good_organic:'ఆర్గానిక్ సర్టిఫైడ్',
-  risk_high:'అధికం', risk_mod:'మధ్యస్థం', risk_low:'తక్కువ', risk_good:'మంచిది',
-  no_concerns_t:'ప్రధాన ఆందోళనలు ఏవీ కనుగొనబడలేదు', no_concerns_d:'అందుబాటులో ఉన్న డేటా ఆధారంగా, ఈ ఉత్పత్తిలో ముఖ్యమైన ఫ్లాగ్‌లు లేవు.',
-  good_contributed_d:'ఈ అంశం స్కోర్‌కు సానుకూలంగా దోహదపడింది.',
-  unnamed_product:'పేరు తెలియని ఉత్పత్తి', barcode_label:'బార్‌కోడ్',
-  nutrition_head:'పోషకాహార వివరాలు (100g కి)', nutr_energy:'శక్తి', nutr_fat:'కొవ్వు', nutr_satfat:'సంతృప్త కొవ్వు', nutr_carbs:'కార్బోహైడ్రేట్లు', nutr_sugar:'షుగర్', nutr_fiber:'ఫైబర్', nutr_protein:'ప్రోటీన్', nutr_sodium:'సోడియం'
-}
-};
-let currentLang = 'en';
-try{ currentLang = localStorage.getItem('foodcheck_lang') || 'en'; }catch(e){}
-function t(key){
-  return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
-}
-function applyLanguage(lang){
-  currentLang = lang;
-  try{ localStorage.setItem('foodcheck_lang', lang); }catch(e){}
-  document.documentElement.lang = lang;
-  const nextLabel = { en:'🌐 हिं', hi:'🌐 తె', te:'🌐 EN' };
-  document.getElementById('langBtn').textContent = nextLabel[lang] || '🌐 हिं';
-  document.getElementById('loginTitle').textContent = t('login_title');
-  document.getElementById('loginDesc').textContent = t('login_desc');
-  document.getElementById('guestBtn').textContent = t('guest_btn');
-  document.getElementById('statScannedLabel').textContent = t('stat_scanned');
-  document.getElementById('statAvgLabel').textContent = t('stat_avg');
-  document.getElementById('homeScanBtn').textContent = t('scan_cta');
-  document.getElementById('homeManualBtn').textContent = t('manual_cta');
-  document.getElementById('homeSearchBtn').textContent = t('search_cta');
-  document.getElementById('homeCompareBtn').textContent = t('compare_cta');
-  document.getElementById('recentScansLabel').textContent = t('recent_scans');
-  document.getElementById('homeViewAll').textContent = t('view_all');
-  document.getElementById('yourFavoritesLabel').textContent = t('your_favorites');
-  document.getElementById('homeFavViewAll').textContent = t('view_all');
-  document.getElementById('needHelpLabel').textContent = t('need_help');
-  document.getElementById('scanHint').textContent = t('scan_hint');
-  document.getElementById('manualToggleBtn').textContent = t('manual_toggle');
-  document.getElementById('manualInput').placeholder = t('manual_placeholder');
-  document.getElementById('manualSubmit').textContent = t('manual_submit');
-  document.getElementById('loadingText').textContent = t('loading_text');
-  document.getElementById('notfoundTitle').textContent = t('notfound_title');
-  document.getElementById('notfoundMsg').textContent = t('notfound_msg');
-  document.getElementById('swaasthLabel').textContent = t('swaasth_label');
-  document.getElementById('breakdownBtn').textContent = t('breakdown_btn');
-  document.getElementById('scanAgainBtn').textContent = t('scan_again_btn');
-  document.getElementById('altBtn').textContent = t('alt_btn');
-  document.getElementById('whyScoreLabel').textContent = t('why_score');
-  document.getElementById('histHeadLabel').textContent = t('hist_head');
-  document.getElementById('clearHistBtn').textContent = t('clear_hist');
-  document.getElementById('favHeadLabel').textContent = t('fav_head');
-  document.getElementById('profileGuestNote').textContent = t('profile_guest_note');
-  document.getElementById('profileSignInBtn').textContent = t('profile_signin');
-  document.getElementById('installAppBtn').textContent = t('profile_install');
-  document.getElementById('profileClearHistBtn').textContent = t('profile_clear_hist');
-  document.getElementById('profileClearFavBtn').textContent = t('profile_clear_fav');
-  document.getElementById('profileSignOutBtn').textContent = t('profile_signout');
-  document.getElementById('profileNeedHelpLabel').textContent = t('profile_need_help');
-  document.getElementById('profileContactLink').textContent = t('profile_contact');
-  document.getElementById('altHeadLabel').textContent = t('alt_head');
-  document.getElementById('altSub').textContent = t('alt_sub');
-  document.getElementById('searchInput').placeholder = t('search_placeholder');
-  document.getElementById('comparePickerInput').placeholder = t('compare_search_placeholder');
-  if(obStep !== undefined){ renderOnboardStep(); }
-  renderCompareSlots();
-  const activeScreen = document.querySelector('.screen.active');
-  if(activeScreen){
-    if(activeScreen.id === 'home-screen') renderHome();
-    if(activeScreen.id === 'history-screen') renderHistory();
-    if(activeScreen.id === 'favorites-screen') renderFavorites();
-    if(activeScreen.id === 'profile-screen') renderProfile();
-    if(activeScreen.id === 'compare-screen') renderCompareTable();
-  }
-}
-document.getElementById('langBtn').addEventListener('click', () => {
-  const cycle = { en:'hi', hi:'te', te:'en' };
-  applyLanguage(cycle[currentLang] || 'en');
-});
+const screens = ['scan-screen','loading-screen','notfound-screen','score-screen','breakdown-screen'];
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
-  document.getElementById('backBtn').style.display = (id==='breakdown-screen') ? 'block' : 'none';
-  document.getElementById('homeBtn').style.display = (id==='scan-screen'||id==='score-screen'||id==='breakdown-screen'||id==='history-screen'||id==='favorites-screen'||id==='profile-screen'||id==='alternatives-screen'||id==='search-screen'||id==='compare-screen') ? 'block' : 'none';
-  document.getElementById('userChip').style.display = (id==='home-screen' && window.fcUser) ? 'flex' : 'none';
-  document.getElementById('settingsBtn').style.display = (id==='home-screen') ? 'block' : 'none';
-  document.getElementById('langBtn').style.display = (id==='home-screen') ? 'block' : 'none';
-  if(id==='home-screen'){ renderHome(); }
-  if(id==='profile-screen'){ renderProfile(); }
-}
-document.getElementById('homeBtn').addEventListener('click', () => showScreen('home-screen'));
-document.getElementById('homeScanBtn').addEventListener('click', goToScanScreen);
-document.getElementById('homeManualBtn').addEventListener('click', () => {
-  goToScanScreen();
-  document.getElementById('manualForm').classList.add('show');
-  document.getElementById('manualInput').focus();
-});
-document.getElementById('homeSearchBtn').addEventListener('click', () => {
-  showScreen('search-screen');
-  document.getElementById('searchResults').innerHTML = '';
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchInput').focus();
-});
-document.getElementById('homeCompareBtn').addEventListener('click', () => {
-  showScreen('compare-screen');
-});
-let compareProductA = null, compareProductB = null, compareActiveSlot = null;
-function fetchProductByBarcode(barcode){
-  return fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`)
-    .then(r => r.json())
-    .then(data => data.status === 1 ? data.product : null);
-}
-function openComparePicker(slot){
-  compareActiveSlot = slot;
-  document.getElementById('comparePicker').style.display = 'block';
-  const input = document.getElementById('comparePickerInput');
-  input.value = '';
-  input.focus();
-  renderComparePickerList('');
-}
-renderCompareSlots();
-let compareDebounce;
-document.getElementById('comparePickerInput').addEventListener('input', (e) => {
-  clearTimeout(compareDebounce);
-  const q = e.target.value.trim();
-  compareDebounce = setTimeout(() => renderComparePickerList(q), 400);
-});
-function renderComparePickerList(query){
-  const resultsEl = document.getElementById('comparePickerResults');
-  if(query.length < 2){
-    const hist = loadHistory().slice(0,8);
-    if(hist.length === 0){ resultsEl.innerHTML = '<div class="alt-loading">Type to search, or scan a product first to see it here.</div>'; return; }
-    resultsEl.innerHTML = '';
-    hist.forEach(h => {
-      const div = document.createElement('div'); div.className = 'search-item';
-      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)}</div></div>`;
-      div.addEventListener('click', () => selectCompareProduct(h.barcode));
-      resultsEl.appendChild(div);
-    });
-    return;
-  }
-  resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
-  fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=10`)
-    .then(r => r.json()).then(data => {
-      const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
-      if(products.length === 0){ resultsEl.innerHTML = '<div class="alt-loading">No products found.</div>'; return; }
-      resultsEl.innerHTML = '';
-      products.forEach(p => {
-        const { score } = computeScore(p);
-        const tier = scoreTier(score);
-        const div = document.createElement('div'); div.className = 'search-item';
-        div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(p.product_name || p.product_name_en)}</div><div class="hist-meta">${escapeHtml(p.brands||'')}</div></div>`;
-        div.addEventListener('click', () => selectCompareProduct(p.code));
-        resultsEl.appendChild(div);
-      });
-    }).catch(() => { resultsEl.innerHTML = '<div class="alt-loading">Search failed. Try again.</div>'; });
-}
-function selectCompareProduct(barcode){
-  const resultsEl = document.getElementById('comparePickerResults');
-  resultsEl.innerHTML = '<div class="alt-loading">Loading product…</div>';
-  fetchProductByBarcode(barcode).then(product => {
-    if(!product){ resultsEl.innerHTML = '<div class="alt-loading">Could not load that product.</div>'; return; }
-    if(compareActiveSlot === 'A') compareProductA = { barcode, product };
-    else compareProductB = { barcode, product };
-    document.getElementById('comparePicker').style.display = 'none';
-    renderCompareSlots();
-    renderCompareTable();
-  });
-}
-function renderCompareSlots(){
-  ['A','B'].forEach(slot => {
-    const entry = slot === 'A' ? compareProductA : compareProductB;
-    const el = document.getElementById('slot' + slot);
-    if(!entry){
-      el.className = 'compare-slot';
-      el.innerHTML = `+ Add Product ${slot}`;
-      el.onclick = () => openComparePicker(slot);
-      return;
-    }
-    const { score } = computeScore(entry.product);
-    const tier = scoreTier(score);
-    const name = entry.product.product_name || entry.product.product_name_en || 'Unnamed product';
-    el.className = 'compare-slot filled';
-    el.innerHTML = `<div class="compare-slot-score" style="background:${tier.color}">${score}</div><div class="compare-slot-name">${escapeHtml(name)}</div><div class="compare-slot-remove" data-slot="${slot}">Remove</div>`;
-    el.onclick = null;
-    el.querySelector('.compare-slot-remove').addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      if(slot === 'A') compareProductA = null; else compareProductB = null;
-      renderCompareSlots();
-      renderCompareTable();
-    });
-  });
-}
-function renderCompareTable(){
-  const tableEl = document.getElementById('compareTable');
-  if(!compareProductA || !compareProductB){ tableEl.innerHTML = ''; return; }
-  const a = compareProductA.product, b = compareProductB.product;
-  const sa = computeScore(a), sb = computeScore(b);
-  const tierA = scoreTier(sa.score), tierB = scoreTier(sb.score);
-  const rows = [
-    [t('compare_score'), `<b style="color:${tierA.color}">${sa.score}</b>`, `<b style="color:${tierB.color}">${sb.score}</b>`],
-    [t('compare_rating'), tierLabel(tierA.key), tierLabel(tierB.key)],
-    [t('compare_nutri'), (a.nutriscore_grade||'?').toUpperCase(), (b.nutriscore_grade||'?').toUpperCase()],
-    [t('compare_nova'), a.nova_group || '?', b.nova_group || '?'],
-    [t('compare_sugar'), a.nutriments && a.nutriments.sugars_100g != null ? a.nutriments.sugars_100g.toFixed(1)+'g' : '—', b.nutriments && b.nutriments.sugars_100g != null ? b.nutriments.sugars_100g.toFixed(1)+'g' : '—'],
-    [t('compare_sodium'), a.nutriments && a.nutriments.sodium_100g != null ? (a.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—', b.nutriments && b.nutriments.sodium_100g != null ? (b.nutriments.sodium_100g*1000).toFixed(0)+'mg' : '—'],
-    [t('compare_additives'), (a.additives_tags||[]).length, (b.additives_tags||[]).length]
-  ];
-  let html = `<div class="compare-row header"><div class="compare-cell label"></div><div class="compare-cell">${escapeHtml((a.product_name||'A').slice(0,14))}</div><div class="compare-cell">${escapeHtml((b.product_name||'B').slice(0,14))}</div></div>`;
-  rows.forEach(([label, valA, valB]) => {
-    html += `<div class="compare-row"><div class="compare-cell label">${label}</div><div class="compare-cell">${valA}</div><div class="compare-cell">${valB}</div></div>`;
-  });
-  tableEl.innerHTML = html;
-}
-let searchDebounce;
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  clearTimeout(searchDebounce);
-  const q = e.target.value.trim();
-  if(q.length < 3){
-    document.getElementById('searchResults').innerHTML = q.length > 0 ? '<div class="alt-loading">Keep typing… (min 3 characters)</div>' : '';
-    return;
-  }
-  searchDebounce = setTimeout(() => runProductSearch(q), 500);
-});
-function runProductSearch(query){
-  const resultsEl = document.getElementById('searchResults');
-  resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=20`;
-  fetch(url).then(r => r.json()).then(data => {
-    const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
-    if(products.length === 0){
-      resultsEl.innerHTML = '<div class="alt-loading">No products found. Try a different search term.</div>';
-      return;
-    }
-    resultsEl.innerHTML = '';
-    products.slice(0,20).forEach(p => {
-      const { score } = computeScore(p);
-      const tier = scoreTier(score);
-      const name = p.product_name || p.product_name_en || 'Unnamed product';
-      const brand = p.brands || '';
-      const div = document.createElement('div'); div.className = 'search-item';
-      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)}</div></div>`;
-      div.addEventListener('click', () => lookupProduct(p.code));
-      resultsEl.appendChild(div);
-    });
-  }).catch(() => {
-    resultsEl.innerHTML = '<div class="alt-loading">Search failed. Check your connection and try again.</div>';
-  });
-}
-document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
-document.getElementById('homeFavViewAll').addEventListener('click', () => { renderFavorites(); showScreen('favorites-screen'); });
-function renderHome(){
-  const hist = loadHistory();
-  const firstName = (window.fcUser && window.fcUser.displayName) ? window.fcUser.displayName.split(' ')[0] : 'there';
-  document.getElementById('homeGreet').textContent = `Hi ${firstName}, what are you eating today?`;
-  document.getElementById('statTotal').textContent = hist.length;
-  const avg = hist.length ? Math.round(hist.reduce((s,h) => s + h.score, 0) / hist.length) : null;
-  document.getElementById('statAvg').textContent = avg !== null ? avg : '—';
-  const listEl = document.getElementById('homeRecentList');
-  if(hist.length === 0){
-    listEl.innerHTML = '<div class="hist-empty">No scans yet — try your first one!</div>';
-  }else{
-    listEl.innerHTML = '';
-    hist.slice(0,3).forEach(h => {
-      const div = document.createElement('div'); div.className = 'hist-item';
-      div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)}</div></div>`;
-      div.addEventListener('click', () => lookupProduct(h.barcode));
-      listEl.appendChild(div);
-    });
-  }
-  const favs = loadFavorites();
-  const favListEl = document.getElementById('homeFavList');
-  if(favs.length === 0){
-    favListEl.innerHTML = '<div class="hist-empty">No favorites yet — tap the ☆ on any product to save it.</div>';
-  }else{
-    favListEl.innerHTML = '';
-    favs.slice(0,3).forEach(f => {
-      const div = document.createElement('div'); div.className = 'hist-item';
-      div.innerHTML = `<div class="hist-score" style="background:${f.color}">${f.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(f.name)}</div><div class="hist-meta">${tierLabel(f.tier)}</div></div>`;
-      div.addEventListener('click', () => lookupProduct(f.barcode));
-      favListEl.appendChild(div);
-    });
-  }
-}
-document.getElementById('clearHistBtn').addEventListener('click', () => {
-  localStorage.removeItem(HISTORY_KEY);
-  renderHistory();
-});
-const HISTORY_KEY = 'foodcheck_history';
-function loadHistory(){
-  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
-  catch(e){ return []; }
-}
-function saveToHistory(entry){
-  let hist = loadHistory();
-  hist = hist.filter(h => h.barcode !== entry.barcode);
-  hist.unshift(entry);
-  hist = hist.slice(0, 20);
-  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
-}
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str == null ? '' : String(str);
-  return div.innerHTML;
-}
-const FAVORITES_KEY = 'foodcheck_favorites';
-function loadFavorites(){
-  try{ return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; }
-  catch(e){ return []; }
-}
-function isFavorited(barcode){
-  return loadFavorites().some(f => f.barcode === barcode);
-}
-function addFavorite(entry){
-  let favs = loadFavorites();
-  favs = favs.filter(f => f.barcode !== entry.barcode);
-  favs.unshift(entry);
-  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
-}
-function removeFavorite(barcode){
-  const favs = loadFavorites().filter(f => f.barcode !== barcode);
-  try{ localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs)); }catch(e){}
-}
-function renderFavorites(){
-  const favs = loadFavorites();
-  const listEl = document.getElementById('favList');
-  if(favs.length === 0){
-    listEl.innerHTML = '<div class="hist-empty">No favorites yet. Tap the ☆ on any scanned product to save it here.</div>';
-    return;
-  }
-  listEl.innerHTML = '';
-  favs.forEach(f => {
-    const div = document.createElement('div'); div.className = 'fav-item';
-    const info = document.createElement('div'); info.className = 'hist-info';
-    info.innerHTML = `<div class="hist-score" style="display:inline-flex;width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:14px;background:${f.color};margin-right:12px;vertical-align:middle;">${f.score}</div><span class="hist-name">${escapeHtml(f.name)}</span><div class="hist-meta">${tierLabel(f.tier)}</div>`;
-    info.style.cssText = 'flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;cursor:pointer;';
-    info.addEventListener('click', () => lookupProduct(f.barcode));
-    const removeBtn = document.createElement('button'); removeBtn.className = 'fav-remove'; removeBtn.textContent = '★';
-    removeBtn.title = 'Remove from favorites';
-    removeBtn.addEventListener('click', () => { removeFavorite(f.barcode); renderFavorites(); });
-    div.appendChild(info); div.appendChild(removeBtn);
-    listEl.appendChild(div);
-  });
-}
-document.getElementById('favBtn').addEventListener('click', () => {
-  if(!window.currentProduct) return;
-  const barcode = window.currentProduct.barcode;
-  if(isFavorited(barcode)){
-    removeFavorite(barcode);
-  }else{
-    addFavorite(window.currentProduct);
-  }
-  updateFavBtn(barcode);
-});
-function updateFavBtn(barcode){
-  const btn = document.getElementById('favBtn');
-  const fav = isFavorited(barcode);
-  btn.textContent = fav ? '★' : '☆';
-  btn.classList.toggle('active', fav);
-}
-function renderHistory(){
-  const hist = loadHistory();
-  const listEl = document.getElementById('histList');
-  if(hist.length === 0){
-    listEl.innerHTML = '<div class="hist-empty">No scans yet. Products you check will show up here.</div>';
-    return;
-  }
-  listEl.innerHTML = '';
-  hist.forEach(h => {
-    const div = document.createElement('div'); div.className = 'hist-item';
-    div.innerHTML = `<div class="hist-score" style="background:${h.color}">${h.score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(h.name)}</div><div class="hist-meta">${tierLabel(h.tier)} · ${new Date(h.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div></div>`;
-    div.addEventListener('click', () => lookupProduct(h.barcode));
-    listEl.appendChild(div);
-  });
+  document.getElementById('backBtn').style.display = (id==='score-screen'||id==='breakdown-screen') ? 'block' : 'none';
 }
 document.getElementById('manualToggleBtn').addEventListener('click', () => {
   document.getElementById('manualForm').classList.toggle('show');
@@ -813,37 +125,17 @@ document.getElementById('manualSubmit').addEventListener('click', () => {
   const code = document.getElementById('manualInput').value.trim();
   if(code) lookupProduct(code);
 });
-document.getElementById('backBtn').addEventListener('click', () => showScreen('score-screen'));
-document.getElementById('scanAgainBtn').addEventListener('click', goToScanScreen);
+document.getElementById('backBtn').addEventListener('click', () => showScreen('scan-screen'));
+document.getElementById('scanAgainBtn').addEventListener('click', () => showScreen('scan-screen'));
 document.getElementById('breakdownBtn').addEventListener('click', () => showScreen('breakdown-screen'));
 let html5QrCode;
-function goToScanScreen(){
-  showScreen('scan-screen');
-  if(!html5QrCode){
-    startScanner();
-  }else{
-    try{
-      if(html5QrCode.getState() === Html5QrcodeScannerState.PAUSED){ html5QrCode.resume(); }
-    }catch(e){}
-  }
-}
 function startScanner(){
   if (typeof Html5Qrcode === 'undefined') {
     document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera scanner could not load. Use manual entry below instead.</p>';
     return;
   }
-  html5QrCode = new Html5Qrcode("reader", {
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.QR_CODE
-    ],
-    verbose: false,
-    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-  });
-  const config = { fps: 20, qrbox: { width: 280, height: 120 }, aspectRatio: 1.777, disableFlip: true };
+  html5QrCode = new Html5Qrcode("reader");
+  const config = { fps: 10, qrbox: { width: 220, height: 140 } };
   html5QrCode.start(
     { facingMode: "environment" }, config,
     (decodedText) => { html5QrCode.pause(); lookupProduct(decodedText); },
@@ -852,90 +144,7 @@ function startScanner(){
     document.getElementById('reader').innerHTML = '<p style="color:#fff;font-size:12px;padding:20px;text-align:center;">Camera access denied. Use manual entry below instead.</p>';
   });
 }
-window.addEventListener('load', () => {
-  let onboarded = false;
-  try{ onboarded = localStorage.getItem(ONBOARD_KEY) === '1'; }catch(e){}
-  if(onboarded){ goToAppOrLogin(); }
-  else{ renderOnboardStep(); showScreen('onboarding-screen'); }
-});
-const ONBOARD_KEY = 'foodcheck_onboarded';
-const onboardSteps = [
-  { icon:'📷', title:'Scan any barcode', desc:'Point your camera at any packaged food product sold in India to check it instantly.' },
-  { icon:'🩺', title:'Get your Swaasth Score', desc:'A 0–100 rating built from Nutri-Score, NOVA processing group, additives, sugar & sodium levels.' },
-  { icon:'🥗', title:'Track & discover better picks', desc:'Your recent scans are saved so you can revisit them, and we surface healthier alternatives.' }
-];
-let obStep = 0;
-function renderOnboardStep(){
-  const s = onboardSteps[obStep];
-  document.getElementById('obIcon').textContent = s.icon;
-  document.getElementById('obTitle').textContent = s.title;
-  document.getElementById('obDesc').textContent = s.desc;
-  document.getElementById('obNextBtn').textContent = obStep === onboardSteps.length-1 ? 'Get Started' : 'Next';
-  document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('on', i===obStep));
-}
-document.getElementById('obNextBtn').addEventListener('click', () => {
-  if(obStep < onboardSteps.length - 1){ obStep++; renderOnboardStep(); }
-  else{ finishOnboarding(); }
-});
-document.getElementById('obSkipBtn').addEventListener('click', finishOnboarding);
-function finishOnboarding(){
-  try{ localStorage.setItem(ONBOARD_KEY, '1'); }catch(e){}
-  goToAppOrLogin();
-}
-window.fcAuthQueue = [];
-function goToAppOrLogin(){
-  if(window.fcAuthResolved){ decideAuthScreen(); }
-  else{ window.fcAuthQueue.push(decideAuthScreen); }
-}
-function decideAuthScreen(){
-  if(window.fcUser){ updateUserChip(); showScreen('home-screen'); }
-  else{ showScreen('login-screen'); }
-}
-function updateUserChip(){
-  if(!window.fcUser) return;
-  document.getElementById('userAvatar').src = window.fcUser.photoURL || '';
-  document.getElementById('userName').textContent = (window.fcUser.displayName || 'Account').split(' ')[0];
-}
-document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); });
-document.getElementById('userChip').addEventListener('click', () => showScreen('profile-screen'));
-document.getElementById('settingsBtn').addEventListener('click', () => showScreen('profile-screen'));
-function renderProfile(){
-  const avatarWrap = document.getElementById('profileAvatarWrap');
-  const signInBtn = document.getElementById('profileSignInBtn');
-  const signOutBtn = document.getElementById('profileSignOutBtn');
-  const guestNote = document.getElementById('profileGuestNote');
-  if(window.fcUser){
-    avatarWrap.innerHTML = window.fcUser.photoURL ? `<img src="${window.fcUser.photoURL}" alt="">` : '👤';
-    document.getElementById('profileName').textContent = window.fcUser.displayName || 'Account';
-    document.getElementById('profileEmail').textContent = window.fcUser.email || '';
-    guestNote.style.display = 'none';
-    signInBtn.style.display = 'none';
-    signOutBtn.style.display = 'block';
-  }else{
-    avatarWrap.innerHTML = '👤';
-    document.getElementById('profileName').textContent = 'Guest';
-    document.getElementById('profileEmail').textContent = '';
-    guestNote.style.display = 'block';
-    signInBtn.style.display = 'block';
-    signOutBtn.style.display = 'none';
-  }
-}
-document.getElementById('profileSignOutBtn').addEventListener('click', () => {
-  if(window.fcSignOut) window.fcSignOut();
-});
-document.getElementById('profileSignInBtn').addEventListener('click', () => {
-  showScreen('login-screen');
-});
-document.getElementById('profileClearHistBtn').addEventListener('click', () => {
-  if(confirm('Clear your entire scan history? This cannot be undone.')){
-    localStorage.removeItem(HISTORY_KEY);
-  }
-});
-document.getElementById('profileClearFavBtn').addEventListener('click', () => {
-  if(confirm('Remove all saved favorites? This cannot be undone.')){
-    localStorage.removeItem(FAVORITES_KEY);
-  }
-});
+window.addEventListener('load', startScanner);
 async function lookupProduct(barcode){
   showScreen('loading-screen');
   try{
@@ -963,51 +172,35 @@ function computeScore(product){
   const nutriMap = { a: 25, b: 12, c: 0, d: -12, e: -25 };
   if(nutri in nutriMap) score += nutriMap[nutri];
   const nova = product.nova_group;
-  if(nova === 4){ score -= 15; flags.push({key:'nova4', risk:'high'}); }
-  else if(nova === 3){ score -= 6; flags.push({key:'nova3', risk:'mod'}); }
-  else if(nova === 1 || nova === 2){ goodFlags.push('minimal'); }
+  if(nova === 4){ score -= 15; flags.push({t:'Ultra-processed (NOVA 4)', risk:'high', d:'Highly industrial formulation with additives rarely used in home cooking.'}); }
+  else if(nova === 3){ score -= 6; flags.push({t:'Processed food (NOVA 3)', risk:'mod', d:'Contains added oil, sugar or salt beyond the raw product.'}); }
+  else if(nova === 1 || nova === 2){ goodFlags.push('Minimally processed'); }
   const additives = product.additives_tags || [];
-  if(additives.length > 4){ score -= 10; flags.push({key:'additives_high', risk:'high', n: additives.length}); }
-  else if(additives.length > 0){ score -= 4; flags.push({key:'additives_mod', risk:'mod', n: additives.length}); }
-  else{ goodFlags.push('noadditives'); }
+  if(additives.length > 4){ score -= 10; flags.push({t:`${additives.length} additives detected`, risk:'high', d:'A high additive count often signals a heavily engineered product.'}); }
+  else if(additives.length > 0){ score -= 4; flags.push({t:`${additives.length} additive(s) detected`, risk:'mod', d:'Present within typical packaged-food range.'}); }
+  else{ goodFlags.push('No additives listed'); }
   const sodium = product.nutriments && product.nutriments.sodium_100g;
   if(sodium != null){
-    if(sodium > 0.6){ score -= 10; flags.push({key:'sodium_high', risk:'high', n: Math.round(sodium*1000)}); }
-    else if(sodium > 0.3){ score -= 3; flags.push({key:'sodium_mod', risk:'mod', n: Math.round(sodium*1000)}); }
-    else{ goodFlags.push('lowsodium'); }
+    if(sodium > 0.6){ score -= 10; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'high', d:'High sodium. ICMR recommends under 2000mg total sodium per day.'}); }
+    else if(sodium > 0.3){ score -= 3; flags.push({t:`Sodium ${(sodium*1000).toFixed(0)}mg/100g`, risk:'mod', d:'Moderate sodium level.'}); }
+    else{ goodFlags.push('Low sodium'); }
   }
   const sugar = product.nutriments && product.nutriments.sugars_100g;
   if(sugar != null){
-    if(sugar > 22.5){ score -= 8; flags.push({key:'sugar_high', risk:'high', n: sugar.toFixed(1)}); }
-    else if(sugar > 5){ score -= 2; flags.push({key:'sugar_mod', risk:'mod', n: sugar.toFixed(1)}); }
-    else{ goodFlags.push('lowsugar'); }
+    if(sugar > 22.5){ score -= 8; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'high', d:'High sugar under front-of-pack thresholds (>22.5g/100g).'}); }
+    else if(sugar > 5){ score -= 2; flags.push({t:`Sugar ${sugar.toFixed(1)}g/100g`, risk:'mod', d:'Moderate sugar content.'}); }
+    else{ goodFlags.push('Low sugar'); }
   }
   const labels = (product.labels || '').toLowerCase();
-  if(labels.includes('organic')){ score += 8; goodFlags.push('organic'); }
+  if(labels.includes('organic')){ score += 8; goodFlags.push('Organic certified'); }
   score = Math.max(2, Math.min(98, Math.round(score)));
   return { score, flags, goodFlags };
 }
 function scoreTier(score){
-  if(score >= 75) return { key:'excellent', color:'#4E9A55' };
-  if(score >= 55) return { key:'good', color:'#4E9A55' };
-  if(score >= 35) return { key:'fair', color:'#F0A93C' };
-  return { key:'poor', color:'#D14545' };
-}
-function tierLabel(key){
-  const map = { excellent:'tier_excellent', good:'tier_good', fair:'tier_fair', poor:'tier_poor' };
-  return map[key] ? t(map[key]) : key;
-}
-function flagLabel(f){
-  const titleMap = { nova4:'flag_nova4_t', nova3:'flag_nova3_t', additives_high:'flag_additives_high_t', additives_mod:'flag_additives_mod_t', sodium_high:'flag_sodium_t', sodium_mod:'flag_sodium_t', sugar_high:'flag_sugar_t', sugar_mod:'flag_sugar_t' };
-  const descMap = { nova4:'flag_nova4_d', nova3:'flag_nova3_d', additives_high:'flag_additives_high_d', additives_mod:'flag_additives_mod_d', sodium_high:'flag_sodium_high_d', sodium_mod:'flag_sodium_mod_d', sugar_high:'flag_sugar_high_d', sugar_mod:'flag_sugar_mod_d' };
-  let title = t(titleMap[f.key] || f.key);
-  if(f.n !== undefined) title = title.replace('{n}', f.n);
-  const desc = t(descMap[f.key] || '');
-  return { title, desc };
-}
-function goodFlagLabel(key){
-  const map = { minimal:'good_minimal', noadditives:'good_noadditives', lowsodium:'good_lowsodium', lowsugar:'good_lowsugar', organic:'good_organic' };
-  return map[key] ? t(map[key]) : key;
+  if(score >= 75) return { tag:'Excellent', color:'#4E9A55' };
+  if(score >= 55) return { tag:'Good', color:'#4E9A55' };
+  if(score >= 35) return { tag:'Fair', color:'#F0A93C' };
+  return { tag:'Poor', color:'#D14545' };
 }
 function renderScore(product, barcode){
   const name = product.product_name || product.product_name_en || 'Unnamed product';
@@ -1018,200 +211,32 @@ function renderScore(product, barcode){
   const tier = scoreTier(score);
   document.getElementById('dialNum').textContent = score;
   document.getElementById('dialNum').style.color = tier.color;
-  document.getElementById('dialTag').textContent = tierLabel(tier.key);
+  document.getElementById('dialTag').textContent = tier.tag;
   const deg = Math.round((score/100)*360);
   document.getElementById('dial').style.background = `conic-gradient(${tier.color} 0deg ${deg}deg, #E8E2CF ${deg}deg 360deg)`;
-  const dialEl = document.getElementById('dial');
-  dialEl.classList.remove('reveal');
-  void dialEl.offsetWidth;
-  dialEl.classList.add('reveal');
   const pillsRow = document.getElementById('pillsRow'); pillsRow.innerHTML = '';
-  flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = flagLabel(f).title; pillsRow.appendChild(el); });
-  goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = goodFlagLabel(g); pillsRow.appendChild(el); });
+  flags.slice(0,2).forEach(f => { const el = document.createElement('span'); el.className = 'pill warn'; el.textContent = f.t; pillsRow.appendChild(el); });
+  goodFlags.slice(0,2).forEach(g => { const el = document.createElement('span'); el.className = 'pill good'; el.textContent = g; pillsRow.appendChild(el); });
   const listRows = document.getElementById('listRows');
   const nutri = (product.nutriscore_grade || '?').toUpperCase();
   const nova = product.nova_group || '?';
-  listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>${t('nutriscore_label')}</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>${t('nova_label')}</span><span>${t('group_label')} ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>${t('additives_label')}</span><span>${flags.length}</span></div>`;
-  document.getElementById('nutritionHeadLabel').textContent = t('nutrition_head');
-  const nuts = product.nutriments || {};
-  const fmt = (val, unit) => (val != null && !isNaN(val)) ? `${Number(val).toFixed(1)}${unit}` : '—';
-  const nutritionRows = [
-    [t('nutr_energy'), (nuts['energy-kcal_100g'] != null ? Math.round(nuts['energy-kcal_100g']) + ' kcal' : (nuts.energy_100g != null ? Math.round(nuts.energy_100g / 4.184) + ' kcal' : '—')), false],
-    [t('nutr_fat'), fmt(nuts.fat_100g, 'g'), false],
-    [t('nutr_satfat'), fmt(nuts['saturated-fat_100g'], 'g'), true],
-    [t('nutr_carbs'), fmt(nuts.carbohydrates_100g, 'g'), false],
-    [t('nutr_sugar'), fmt(nuts.sugars_100g, 'g'), true],
-    [t('nutr_fiber'), fmt(nuts.fiber_100g, 'g'), false],
-    [t('nutr_protein'), fmt(nuts.proteins_100g, 'g'), false],
-    [t('nutr_sodium'), (nuts.sodium_100g != null ? Math.round(nuts.sodium_100g * 1000) + ' mg' : '—'), false]
-  ];
-  document.getElementById('nutritionRows').innerHTML = nutritionRows.map(([label, val, indent]) =>
-    `<div class="nutrition-row${indent ? ' indent' : ''}"><span>${indent ? '– ' : ''}${label}</span><span class="v">${val}</span></div>`
-  ).join('');
-  document.getElementById('bdSub').textContent = t('factors_affected_tpl').replace('{n}', flags.length);
+  listRows.innerHTML = `<div class="list-row"><span><span class="dot ${nutri<='B'?'g':(nutri==='C'?'y':'r')}"></span>Nutri-Score</span><span>${nutri}</span></div><div class="list-row"><span><span class="dot ${nova<=2?'g':(nova==3?'y':'r')}"></span>Processing (NOVA)</span><span>Group ${nova}</span></div><div class="list-row"><span><span class="dot ${flags.length? 'r':'g'}"></span>Additives flagged</span><span>${flags.length}</span></div>`;
+  document.getElementById('bdSub').textContent = `${flags.length} factor(s) affected the rating`;
   const acc = document.getElementById('accordionList'); acc.innerHTML = '';
-  if(flags.length === 0){ acc.innerHTML = `<div class="acc-item"><div class="t">${t('no_concerns_t')}</div><div class="d">${t('no_concerns_d')}</div></div>`; }
+  if(flags.length === 0){ acc.innerHTML = '<div class="acc-item"><div class="t">No major concerns found</div><div class="d">Based on available data, this product has no significant flags.</div></div>'; }
   flags.forEach(f => {
     const riskClass = f.risk === 'high' ? 'risk-high' : (f.risk === 'mod' ? 'risk-mod' : 'risk-low');
-    const riskLabel = f.risk === 'high' ? t('risk_high') : (f.risk === 'mod' ? t('risk_mod') : t('risk_low'));
-    const label = flagLabel(f);
+    const riskLabel = f.risk === 'high' ? 'High' : (f.risk === 'mod' ? 'Moderate' : 'Low');
     const div = document.createElement('div'); div.className = 'acc-item';
-    div.innerHTML = `<div class="t">${label.title} <span class="risk-tag ${riskClass}">${riskLabel}</span></div><div class="d">${label.desc}</div>`;
+    div.innerHTML = `<div class="t">${f.t} <span class="risk-tag ${riskClass}">${riskLabel}</span></div><div class="d">${f.d}</div>`;
     acc.appendChild(div);
   });
   goodFlags.forEach(g => {
     const div = document.createElement('div'); div.className = 'acc-item';
-    div.innerHTML = `<div class="t">${goodFlagLabel(g)} <span class="risk-tag risk-low">${t('risk_good')}</span></div><div class="d">${t('good_contributed_d')}</div>`;
+    div.innerHTML = `<div class="t">${g} <span class="risk-tag risk-low">Good</span></div><div class="d">This factor positively contributed to the score.</div>`;
     acc.appendChild(div);
   });
-  window.currentProduct = { barcode, name, score, tier: tier.key, color: tier.color, categories_tags: product.categories_tags || [] };
-  updateFavBtn(barcode);
-  saveToHistory({ barcode, name, score, tier: tier.key, color: tier.color, ts: Date.now() });
-  const altBtn = document.getElementById('altBtn');
-  altBtn.style.display = (score < 60 && window.currentProduct.categories_tags.length > 0) ? 'block' : 'none';
 }
-document.getElementById('altBtn').addEventListener('click', () => {
-  showScreen('alternatives-screen');
-  loadAlternatives();
-});
-function loadAlternatives(){
-  const listEl = document.getElementById('altList');
-  listEl.innerHTML = '<div class="alt-loading">Looking for better options…</div>';
-  const cats = (window.currentProduct && window.currentProduct.categories_tags) || [];
-  if(cats.length === 0){
-    listEl.innerHTML = '<div class="alt-loading">Not enough category data to suggest alternatives.</div>';
-    return;
-  }
-  const category = cats[cats.length - 1];
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?action=process&json=true&page_size=15&sort_by=nutriscore_score&tagtype_0=categories&tag_contains_0=contains&tag_0=${encodeURIComponent(category)}`;
-  fetch(url).then(r => r.json()).then(data => {
-    const currentBarcode = window.currentProduct.barcode;
-    const candidates = (data.products || []).filter(p => p.code !== currentBarcode && (p.product_name || p.product_name_en));
-    const scored = candidates.map(p => {
-      const { score } = computeScore(p);
-      return { p, score };
-    }).filter(x => x.score > window.currentProduct.score).sort((a,b) => b.score - a.score).slice(0,5);
-    if(scored.length === 0){
-      listEl.innerHTML = '<div class="alt-loading">No better-scoring alternatives found in this category yet.</div>';
-      return;
-    }
-    listEl.innerHTML = '';
-    scored.forEach(({p, score}) => {
-      const tier = scoreTier(score);
-      const name = p.product_name || p.product_name_en || 'Unnamed product';
-      const brand = p.brands || '';
-      const div = document.createElement('div'); div.className = 'alt-item';
-      div.innerHTML = `<div class="hist-score" style="background:${tier.color}">${score}</div><div class="hist-info"><div class="hist-name">${escapeHtml(name)}</div><div class="hist-meta">${escapeHtml(brand)} · ${tierLabel(tier.key)}</div></div>`;
-      div.addEventListener('click', () => lookupProduct(p.code));
-      listEl.appendChild(div);
-    });
-  }).catch(() => {
-    listEl.innerHTML = '<div class="alt-loading">Couldn\'t load alternatives right now. Try again later.</div>';
-  });
-}
-
-// --- PWA: service worker + install prompt ---
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').catch((err) => {
-      console.error('Service worker registration failed:', err);
-    });
-  });
-}
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  const btn = document.getElementById('installAppBtn');
-  if (btn) btn.style.display = 'block';
-});
-document.getElementById('installAppBtn').addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  document.getElementById('installAppBtn').style.display = 'none';
-});
-window.addEventListener('appinstalled', () => {
-  const btn = document.getElementById('installAppBtn');
-  if (btn) btn.style.display = 'none';
-});
-applyLanguage(currentLang);
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD4KAQzK3mtMcAfnkUlxecXl93dQgjR_rM",
-  authDomain: "foodcheck-india.firebaseapp.com",
-  projectId: "foodcheck-india",
-  storageBucket: "foodcheck-india.firebasestorage.app",
-  messagingSenderId: "848916197751",
-  appId: "1:848916197751:web:c213e5421b7d30c0143172",
-  measurementId: "G-7K6YVH2K32"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const GOOGLE_CLIENT_ID = "848916197751-jddvi29suvhicc84u6bt1tluk5or5b34.apps.googleusercontent.com";
-
-window.fcSignOut = () => signOut(auth);
-
-function handleCredentialResponse(response) {
-  const credential = GoogleAuthProvider.credential(response.credential);
-  signInWithCredential(auth, credential).catch((err) => {
-    console.error('Sign-in error:', err);
-    alert('Sign-in failed: ' + err.message);
-  });
-}
-
-let googleButtonRetries = 0;
-function initGoogleButton() {
-  if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-    googleButtonRetries++;
-    if (googleButtonRetries > 40) {
-      const container = document.getElementById('gButtonContainer');
-      if (container) {
-        container.innerHTML = '<div style="font-size:11.5px;color:#8A8A78;text-align:center;padding:8px 4px;">Google Sign-In couldn\'t load (check your connection or ad blocker). You can still continue as a guest below.</div>';
-      }
-      return;
-    }
-    setTimeout(initGoogleButton, 150);
-    return;
-  }
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleCredentialResponse
-  });
-  const container = document.getElementById('gButtonContainer');
-  if (container) {
-    google.accounts.id.renderButton(container, {
-      theme: 'outline', size: 'large', shape: 'pill', width: 280, text: 'signin_with'
-    });
-  }
-}
-initGoogleButton();
-
-onAuthStateChanged(auth, (user) => {
-  const wasResolved = window.fcAuthResolved;
-  window.fcUser = user;
-  window.fcAuthResolved = true;
-
-  if (!wasResolved) {
-    // First resolution after page load — let the queued app-flow decision run.
-    (window.fcAuthQueue || []).forEach(fn => fn());
-    window.fcAuthQueue = [];
-  } else {
-    // A later change — user just signed in or out via a button click.
-    if (user) {
-      window.updateUserChip && window.updateUserChip();
-      window.showScreen && window.showScreen('home-screen');
-    } else {
-      window.showScreen && window.showScreen('login-screen');
-    }
-  }
-});
 </script>
 </body>
 </html>
