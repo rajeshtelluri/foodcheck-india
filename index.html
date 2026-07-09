@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -239,7 +239,6 @@
     <div class="login-desc" id="loginDesc">Sign in with Google to personalize your FoodCheck India experience.</div>
     <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
     <button class="guest-btn" id="guestBtn">Continue as guest</button>
-    <div style="font-size:10.5px;color:#B8B2A0;margin-top:16px;padding:0 20px;">By continuing, you agree to our <a href="/terms.html" style="color:#8A8A78;">Terms of Use</a> and <a href="/privacy.html" style="color:#8A8A78;">Privacy Policy</a>.</div>
   </div>
   <div class="screen" id="scan-screen">
     <div id="reader"></div>
@@ -335,14 +334,11 @@
     <div class="profile-actions">
       <div class="profile-btn primary" id="profileSignInBtn" style="display:none;">Sign in with Google</div>
       <div class="profile-btn neutral" id="installAppBtn" style="display:none;">📲 Install App</div>
-      <a class="profile-btn neutral" id="feedbackBtn" href="mailto:foodcheckindia.support@gmail.com?subject=FoodCheck%20India%20Feedback&body=Hi%20team%2C%0A%0AHere's my feedback%3A%0A%0A" style="text-decoration:none;display:block;">💬 Send Feedback / Suggest a Feature</a>
       <div class="profile-btn neutral" id="profileClearHistBtn">Clear scan history</div>
       <div class="profile-btn neutral" id="profileClearFavBtn">Clear all favorites</div>
       <div class="profile-btn danger" id="profileSignOutBtn" style="display:none;">Sign out</div>
     </div>
     <div class="profile-version">FoodCheck India · <span id="profileNeedHelpLabel">Need help?</span> <a href="mailto:foodcheckindia.support@gmail.com" style="color:var(--saffron);" id="profileContactLink">Contact support</a></div>
-    <div class="profile-version" style="margin-top:8px;"><a href="/privacy.html" style="color:#8A8A78;text-decoration:underline;">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms.html" style="color:#8A8A78;text-decoration:underline;">Terms of Use</a></div>
-    <div class="profile-version" id="debugAnalyticsStatus" style="margin-top:8px;">Analytics: checking…</div>
   </div>
 </div>
 <script>
@@ -397,8 +393,7 @@ en: {
   allergen_mustard:'Mustard', allergen_celery:'Celery', allergen_sulphites:'Sulphites', allergen_lupin:'Lupin', avoid_vegetarian:'Vegetarian only',
   eco_label:'Eco-Score',
   ingredients_head:'Ingredients', ingredients_none:'Ingredient list not available for this product.',
-  additives_head:'Additives Found', additives_none:'No additives detected.',
-  feedback_btn:'💬 Send Feedback / Suggest a Feature'
+  additives_head:'Additives Found', additives_none:'No additives detected.'
 },
 hi: {
   ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
@@ -449,8 +444,7 @@ hi: {
   allergen_mustard:'सरसों', allergen_celery:'अजवाइन', allergen_sulphites:'सल्फाइट्स', allergen_lupin:'ल्यूपिन', avoid_vegetarian:'केवल शाकाहारी',
   eco_label:'इको-स्कोर',
   ingredients_head:'सामग्री', ingredients_none:'इस उत्पाद के लिए सामग्री सूची उपलब्ध नहीं है।',
-  additives_head:'पाए गए एडिटिव्स', additives_none:'कोई एडिटिव नहीं मिला।',
-  feedback_btn:'💬 फीडबैक भेजें / सुझाव दें'
+  additives_head:'पाए गए एडिटिव्स', additives_none:'कोई एडिटिव नहीं मिला।'
 },
 te: {
   ob1_title:'ఏదైనా బార్‌కోడ్ స్కాన్ చేయండి', ob1_desc:'భారతదేశంలో అమ్ముడయ్యే ఏదైనా ప్యాకేజ్డ్ ఫుడ్ ప్రొడక్ట్‌పై మీ కెమెరాను పాయింట్ చేసి తక్షణమే తనిఖీ చేయండి.',
@@ -501,8 +495,7 @@ te: {
   allergen_mustard:'ఆవాలు', allergen_celery:'సెలెరీ', allergen_sulphites:'సల్ఫైట్స్', allergen_lupin:'లూపిన్', avoid_vegetarian:'శాఖాహారం మాత్రమే',
   eco_label:'ఎకో-స్కోర్',
   ingredients_head:'పదార్థాలు', ingredients_none:'ఈ ఉత్పత్తికి పదార్థాల జాబితా అందుబాటులో లేదు.',
-  additives_head:'కనుగొన్న యాడిటివ్స్', additives_none:'యాడిటివ్స్ ఏవీ కనుగొనబడలేదు.',
-  feedback_btn:'💬 అభిప్రాయం పంపండి / సూచన ఇవ్వండి'
+  additives_head:'కనుగొన్న యాడిటివ్స్', additives_none:'యాడిటివ్స్ ఏవీ కనుగొనబడలేదు.'
 }
 };
 let currentLang = 'en';
@@ -563,7 +556,6 @@ function applyLanguage(lang){
   document.getElementById('ingredientsHeadLabel').textContent = t('ingredients_head');
   document.getElementById('additivesHeadLabel').textContent = t('additives_head');
   document.getElementById('nutritionHeadLabel').textContent = t('nutrition_head');
-  document.getElementById('feedbackBtn').textContent = t('feedback_btn');
   if(obStep !== undefined){ renderOnboardStep(); }
   renderCompareSlots();
   const activeScreen = document.querySelector('.screen.active');
@@ -577,9 +569,7 @@ function applyLanguage(lang){
 }
 document.getElementById('langBtn').addEventListener('click', () => {
   const cycle = { en:'hi', hi:'te', te:'en' };
-  const next = cycle[currentLang] || 'en';
-  applyLanguage(next);
-  window.fcLogEvent && window.fcLogEvent('change_language', { language: next });
+  applyLanguage(cycle[currentLang] || 'en');
 });
 function showScreen(id){
   screens.forEach(s => document.getElementById(s).classList.toggle('active', s===id));
@@ -698,7 +688,6 @@ function renderCompareTable(){
   const tableEl = document.getElementById('compareTable');
   if(!compareProductA || !compareProductB){ tableEl.innerHTML = ''; return; }
   const a = compareProductA.product, b = compareProductB.product;
-  window.fcLogEvent && window.fcLogEvent('compare_products', { barcode_a: compareProductA.barcode, barcode_b: compareProductB.barcode });
   const sa = computeScore(a), sb = computeScore(b);
   const tierA = scoreTier(sa.score), tierB = scoreTier(sb.score);
   const rows = [
@@ -729,7 +718,6 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 function runProductSearch(query){
   const resultsEl = document.getElementById('searchResults');
   resultsEl.innerHTML = '<div class="alt-loading">Searching…</div>';
-  window.fcLogEvent && window.fcLogEvent('search_product', { query });
   const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=true&page_size=20`;
   fetch(url).then(r => r.json()).then(data => {
     const products = (data.products || []).filter(p => p.product_name || p.product_name_en);
@@ -898,7 +886,6 @@ document.getElementById('favBtn').addEventListener('click', () => {
     removeFavorite(barcode);
   }else{
     addFavorite(window.currentProduct);
-    window.fcLogEvent && window.fcLogEvent('add_favorite', { barcode });
   }
   updateFavBtn(barcode);
 });
@@ -1013,7 +1000,7 @@ function updateUserChip(){
   document.getElementById('userAvatar').src = window.fcUser.photoURL || '';
   document.getElementById('userName').textContent = (window.fcUser.displayName || 'Account').split(' ')[0];
 }
-document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); window.fcLogEvent && window.fcLogEvent('login', { method: 'guest' }); });
+document.getElementById('guestBtn').addEventListener('click', () => { showScreen('home-screen'); });
 document.getElementById('userChip').addEventListener('click', () => showScreen('profile-screen'));
 document.getElementById('settingsBtn').addEventListener('click', () => showScreen('profile-screen'));
 function renderProfile(){
@@ -1038,9 +1025,6 @@ function renderProfile(){
   }
   renderAvoidChips();
 }
-document.getElementById('feedbackBtn').addEventListener('click', () => {
-  window.fcLogEvent && window.fcLogEvent('feedback_clicked');
-});
 document.getElementById('profileSignOutBtn').addEventListener('click', () => {
   if(window.fcSignOut) window.fcSignOut();
 });
@@ -1062,15 +1046,9 @@ async function lookupProduct(barcode){
   try{
     const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
     const data = await res.json();
-    if(data.status !== 1){
-      showNotFound("This barcode isn't in Open Food Facts' database yet.");
-      resumeScannerLater();
-      window.fcLogEvent && window.fcLogEvent('scan_not_found', { barcode });
-      return;
-    }
+    if(data.status !== 1){ showNotFound("This barcode isn't in Open Food Facts' database yet."); resumeScannerLater(); return; }
     renderScore(data.product, barcode);
     showScreen('score-screen');
-    window.fcLogEvent && window.fcLogEvent('scan_success', { barcode });
   }catch(e){
     showNotFound('Network error: ' + e.message);
     resumeScannerLater();
@@ -1293,14 +1271,12 @@ document.getElementById('installAppBtn').addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => {
   const btn = document.getElementById('installAppBtn');
   if (btn) btn.style.display = 'none';
-  window.fcLogEvent && window.fcLogEvent('pwa_install');
 });
 applyLanguage(currentLang);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getAnalytics, logEvent, isSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4KAQzK3mtMcAfnkUlxecXl93dQgjR_rM",
@@ -1315,32 +1291,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const GOOGLE_CLIENT_ID = "848916197751-jddvi29suvhicc84u6bt1tluk5or5b34.apps.googleusercontent.com";
-
-let analytics = null;
-isSupported().then((supported) => {
-  const debugEl = document.getElementById('debugAnalyticsStatus');
-  if (supported) {
-    analytics = getAnalytics(app);
-    if (debugEl) debugEl.textContent = 'Analytics: ON (initialized OK)';
-  } else {
-    if (debugEl) debugEl.textContent = 'Analytics: OFF (isSupported() returned false)';
-  }
-}).catch((err) => {
-  const debugEl = document.getElementById('debugAnalyticsStatus');
-  if (debugEl) debugEl.textContent = 'Analytics: ERROR (' + err.message + ')';
-});
-window.fcLogEvent = (name, params) => {
-  try{
-    if (analytics) {
-      logEvent(analytics, name, params || {});
-      const debugEl = document.getElementById('debugAnalyticsStatus');
-      if (debugEl) debugEl.textContent = 'Analytics: ON — last event sent: ' + name + ' @ ' + new Date().toLocaleTimeString();
-    }
-  }catch(e){
-    const debugEl = document.getElementById('debugAnalyticsStatus');
-    if (debugEl) debugEl.textContent = 'Analytics: logEvent ERROR (' + e.message + ')';
-  }
-};
 
 window.fcSignOut = () => signOut(auth);
 
@@ -1393,10 +1343,8 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
       window.updateUserChip && window.updateUserChip();
       window.showScreen && window.showScreen('home-screen');
-      window.fcLogEvent && window.fcLogEvent('login', { method: 'google' });
     } else {
       window.showScreen && window.showScreen('login-screen');
-      window.fcLogEvent && window.fcLogEvent('logout');
     }
   }
 });
