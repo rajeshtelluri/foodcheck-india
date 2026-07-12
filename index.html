@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FoodCheck India</title>
+<meta name="google-site-verification" content="RUTHfPzgadIzG6gIjjwxrc7vaqYktjiFVz5BiXSOrQg" />
 <meta name="description" content="Scan any packaged food barcode in India and get an instant Swaasth Score based on Nutri-Score, NOVA processing level, additives, sugar & sodium — free, powered by Open Food Facts.">
 <meta property="og:title" content="FoodCheck India — Barcode Health Scanner">
 <meta property="og:description" content="Scan any packaged food barcode and get an instant Swaasth Score. Free, no ads, powered by Open Food Facts.">
@@ -219,6 +220,7 @@
     <div class="home-cta-secondary" id="homeManualBtn">🔢 Enter barcode manually</div>
     <div class="home-cta-secondary" id="homeSearchBtn">🔍 Search by product name</div>
     <div class="home-cta-secondary" id="homeCompareBtn">⚖️ Compare Products</div>
+    <div class="home-cta-secondary" id="homeShareBtn">📤 Share FoodCheck India</div>
     <div class="home-recent-head"><span id="recentScansLabel">Recent scans</span> <span id="homeViewAll">View all</span></div>
     <div class="home-recent-list" id="homeRecentList"></div>
     <div class="home-fav-head"><span id="yourFavoritesLabel">Your Favorites</span> <span id="homeFavViewAll">View all</span></div>
@@ -397,7 +399,8 @@ en: {
   eco_label:'Eco-Score',
   ingredients_head:'Ingredients', ingredients_none:'Ingredient list not available for this product.',
   additives_head:'Additives Found', additives_none:'No additives detected.',
-  feedback_btn:'💬 Send Feedback / Suggest a Feature'
+  feedback_btn:'💬 Send Feedback / Suggest a Feature',
+  share_btn:'📤 Share FoodCheck India'
 },
 hi: {
   ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
@@ -449,7 +452,8 @@ hi: {
   eco_label:'इको-स्कोर',
   ingredients_head:'सामग्री', ingredients_none:'इस उत्पाद के लिए सामग्री सूची उपलब्ध नहीं है।',
   additives_head:'पाए गए एडिटिव्स', additives_none:'कोई एडिटिव नहीं मिला।',
-  feedback_btn:'💬 फीडबैक भेजें / सुझाव दें'
+  feedback_btn:'💬 फीडबैक भेजें / सुझाव दें',
+  share_btn:'📤 FoodCheck India शेयर करें'
 },
 te: {
   ob1_title:'ఏదైనా బార్‌కోడ్ స్కాన్ చేయండి', ob1_desc:'భారతదేశంలో అమ్ముడయ్యే ఏదైనా ప్యాకేజ్డ్ ఫుడ్ ప్రొడక్ట్‌పై మీ కెమెరాను పాయింట్ చేసి తక్షణమే తనిఖీ చేయండి.',
@@ -501,7 +505,8 @@ te: {
   eco_label:'ఎకో-స్కోర్',
   ingredients_head:'పదార్థాలు', ingredients_none:'ఈ ఉత్పత్తికి పదార్థాల జాబితా అందుబాటులో లేదు.',
   additives_head:'కనుగొన్న యాడిటివ్స్', additives_none:'యాడిటివ్స్ ఏవీ కనుగొనబడలేదు.',
-  feedback_btn:'💬 అభిప్రాయం పంపండి / సూచన ఇవ్వండి'
+  feedback_btn:'💬 అభిప్రాయం పంపండి / సూచన ఇవ్వండి',
+  share_btn:'📤 FoodCheck India షేర్ చేయండి'
 }
 };
 let currentLang = 'en';
@@ -563,6 +568,7 @@ function applyLanguage(lang){
   document.getElementById('additivesHeadLabel').textContent = t('additives_head');
   document.getElementById('nutritionHeadLabel').textContent = t('nutrition_head');
   document.getElementById('feedbackBtn').textContent = t('feedback_btn');
+  document.getElementById('homeShareBtn').textContent = t('share_btn');
   if(obStep !== undefined){ renderOnboardStep(); }
   renderCompareSlots();
   const activeScreen = document.querySelector('.screen.active');
@@ -605,6 +611,19 @@ document.getElementById('homeSearchBtn').addEventListener('click', () => {
 });
 document.getElementById('homeCompareBtn').addEventListener('click', () => {
   showScreen('compare-screen');
+});
+document.getElementById('homeShareBtn').addEventListener('click', () => {
+  const shareText = 'Check out FoodCheck India — scan any packaged food barcode and get an instant health score! https://foodcheck-india.vercel.app';
+  window.fcLogEvent && window.fcLogEvent('share_app');
+  if (navigator.share) {
+    navigator.share({
+      title: 'FoodCheck India',
+      text: 'Check out FoodCheck India — scan any packaged food barcode and get an instant health score!',
+      url: 'https://foodcheck-india.vercel.app'
+    }).catch(() => {});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
+  }
 });
 let compareProductA = null, compareProductB = null, compareActiveSlot = null;
 function fetchProductByBarcode(barcode){
