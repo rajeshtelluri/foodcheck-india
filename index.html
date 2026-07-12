@@ -97,6 +97,7 @@
   .ingredients-card .h,.additives-card .h{font-family:'Sora',sans-serif;font-weight:700;font-size:12px;margin-bottom:6px;}
   .ingredients-card .txt{font-size:11.5px;color:#5A5A4E;line-height:1.6;}
   .additive-pill{display:inline-block;font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:14px;background:var(--paper);border:1px solid #E4DEC9;margin:2px 4px 2px 0;}
+  .add-product-btn{margin-top:18px;background:var(--saffron);color:#fff;padding:13px 20px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;text-decoration:none;display:none;}
   .breakdown-btn{background:var(--saffron);color:#fff;}
   .scan-again-btn{background:var(--indigo);color:#fff;}
   .bd-head{padding:16px 18px;background:var(--saffron);color:#fff;}
@@ -257,6 +258,7 @@
     <div class="icon">📦</div>
     <h3 id="notfoundTitle">Not in our database yet</h3>
     <p id="notfoundMsg">This product isn't in Open Food Facts' India catalogue yet. Try another product, or add it yourself at openfoodfacts.org to help build coverage.</p>
+    <a class="add-product-btn" id="addProductBtn" href="#" target="_blank" rel="noopener">➕ Add This Product on Open Food Facts</a>
   </div>
   <div class="screen" id="score-screen">
     <div class="allergy-banner" id="allergyBanner">
@@ -400,7 +402,8 @@ en: {
   ingredients_head:'Ingredients', ingredients_none:'Ingredient list not available for this product.',
   additives_head:'Additives Found', additives_none:'No additives detected.',
   feedback_btn:'💬 Send Feedback / Suggest a Feature',
-  share_btn:'📤 Share FoodCheck India'
+  share_btn:'📤 Share FoodCheck India',
+  add_product_btn:'➕ Add This Product on Open Food Facts'
 },
 hi: {
   ob1_title:'कोई भी बारकोड स्कैन करें', ob1_desc:'भारत में बिकने वाले किसी भी पैकेज्ड फूड प्रोडक्ट पर कैमरा पॉइंट करें और तुरंत जांचें।',
@@ -453,7 +456,8 @@ hi: {
   ingredients_head:'सामग्री', ingredients_none:'इस उत्पाद के लिए सामग्री सूची उपलब्ध नहीं है।',
   additives_head:'पाए गए एडिटिव्स', additives_none:'कोई एडिटिव नहीं मिला।',
   feedback_btn:'💬 फीडबैक भेजें / सुझाव दें',
-  share_btn:'📤 FoodCheck India शेयर करें'
+  share_btn:'📤 FoodCheck India शेयर करें',
+  add_product_btn:'➕ Open Food Facts पर यह उत्पाद जोड़ें'
 },
 te: {
   ob1_title:'ఏదైనా బార్‌కోడ్ స్కాన్ చేయండి', ob1_desc:'భారతదేశంలో అమ్ముడయ్యే ఏదైనా ప్యాకేజ్డ్ ఫుడ్ ప్రొడక్ట్‌పై మీ కెమెరాను పాయింట్ చేసి తక్షణమే తనిఖీ చేయండి.',
@@ -506,7 +510,8 @@ te: {
   ingredients_head:'పదార్థాలు', ingredients_none:'ఈ ఉత్పత్తికి పదార్థాల జాబితా అందుబాటులో లేదు.',
   additives_head:'కనుగొన్న యాడిటివ్స్', additives_none:'యాడిటివ్స్ ఏవీ కనుగొనబడలేదు.',
   feedback_btn:'💬 అభిప్రాయం పంపండి / సూచన ఇవ్వండి',
-  share_btn:'📤 FoodCheck India షేర్ చేయండి'
+  share_btn:'📤 FoodCheck India షేర్ చేయండి',
+  add_product_btn:'➕ Open Food Facts లో ఈ ఉత్పత్తిని జోడించండి'
 }
 };
 let currentLang = 'en';
@@ -569,6 +574,7 @@ function applyLanguage(lang){
   document.getElementById('nutritionHeadLabel').textContent = t('nutrition_head');
   document.getElementById('feedbackBtn').textContent = t('feedback_btn');
   document.getElementById('homeShareBtn').textContent = t('share_btn');
+  document.getElementById('addProductBtn').textContent = t('add_product_btn');
   if(obStep !== undefined){ renderOnboardStep(); }
   renderCompareSlots();
   const activeScreen = document.querySelector('.screen.active');
@@ -611,6 +617,9 @@ document.getElementById('homeSearchBtn').addEventListener('click', () => {
 });
 document.getElementById('homeCompareBtn').addEventListener('click', () => {
   showScreen('compare-screen');
+});
+document.getElementById('addProductBtn').addEventListener('click', () => {
+  window.fcLogEvent && window.fcLogEvent('add_product_clicked');
 });
 document.getElementById('homeShareBtn').addEventListener('click', () => {
   const shareText = 'Check out FoodCheck India — scan any packaged food barcode and get an instant health score! https://foodcheck-india.vercel.app';
@@ -1081,7 +1090,7 @@ async function lookupProduct(barcode){
     const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
     const data = await res.json();
     if(data.status !== 1){
-      showNotFound("This barcode isn't in Open Food Facts' database yet.");
+      showNotFound("This barcode isn't in Open Food Facts' database yet.", barcode);
       resumeScannerLater();
       window.fcLogEvent && window.fcLogEvent('scan_not_found', { barcode });
       return;
@@ -1094,7 +1103,17 @@ async function lookupProduct(barcode){
     resumeScannerLater();
   }
 }
-function showNotFound(msg){ document.getElementById('notfoundMsg').textContent = msg; showScreen('notfound-screen'); }
+function showNotFound(msg, barcode){
+  document.getElementById('notfoundMsg').textContent = msg;
+  const addBtn = document.getElementById('addProductBtn');
+  if(barcode){
+    addBtn.href = `https://world.openfoodfacts.org/product/${barcode}`;
+    addBtn.style.display = 'inline-block';
+  }else{
+    addBtn.style.display = 'none';
+  }
+  showScreen('notfound-screen');
+}
 function resumeScannerLater(){
   setTimeout(() => {
     if(typeof Html5Qrcode === 'undefined' || !html5QrCode) return;
