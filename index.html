@@ -175,31 +175,59 @@
   .ob-dot.on{background:var(--saffron);width:18px;border-radius:4px;}
   .ob-next{margin-top:26px;width:100%;background:var(--indigo);color:#fff;border:none;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
   .ob-skip{margin-top:12px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
-  #login-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;}
-  .login-icon{font-size:48px;margin-bottom:6px;}
-  .login-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;}
-  .login-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:8px;padding:0 6px;}
-  .google-btn{margin-top:28px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #DFD9C4;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:#1A1A1A;}
+  #login-screen{align-items:center;justify-content:center;text-align:center;padding:40px 30px;gap:6px;position:relative;overflow:hidden;background:linear-gradient(135deg,#F5F1E6 0%,#F0E9D8 100%);}
+  #login-screen::before,#login-screen::after{content:'';position:absolute;border-radius:50%;filter:blur(40px);opacity:0.35;z-index:0;animation:loginBlobFloat 9s ease-in-out infinite;}
+  #login-screen::before{width:220px;height:220px;background:var(--saffron);top:-60px;left:-60px;}
+  #login-screen::after{width:180px;height:180px;background:var(--leaf);bottom:-50px;right:-50px;animation-delay:2.5s;}
+  @keyframes loginBlobFloat{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(20px,-16px) scale(1.12);}}
+  #login-screen > *{position:relative;z-index:1;}
+  .login-icon{font-size:48px;margin-bottom:6px;opacity:0;animation:loginPopIn 0.5s ease forwards;animation-delay:0.05s;}
+  .login-title{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;opacity:0;animation:loginFadeUp 0.5s ease forwards;animation-delay:0.15s;}
+  .login-desc{font-size:12.5px;color:#7A7A68;line-height:1.6;margin-top:8px;padding:0 6px;opacity:0;animation:loginFadeUp 0.5s ease forwards;animation-delay:0.25s;}
+  @keyframes loginPopIn{0%{opacity:0;transform:scale(0.5) rotate(-8deg);}60%{opacity:1;transform:scale(1.1) rotate(3deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
+  @keyframes loginFadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .google-btn{margin-top:28px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #DFD9C4;padding:13px;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:#1A1A1A;opacity:0;animation:loginFadeUp 0.5s ease forwards;animation-delay:0.35s;transition:transform 0.15s ease,box-shadow 0.15s ease;}
+  .google-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.08);}
+  .google-btn:active{transform:translateY(0) scale(0.98);}
   .google-btn svg{width:18px;height:18px;}
-  .guest-btn{margin-top:14px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;}
+  .guest-btn{margin-top:14px;background:none;border:none;color:#8A8A78;font-size:12px;cursor:pointer;text-decoration:underline;opacity:0;animation:loginFadeUp 0.5s ease forwards;animation-delay:0.45s;}
+  .g-btn-wrap{opacity:0;animation:loginFadeUp 0.5s ease forwards;animation-delay:0.35s;}
   .user-chip{display:none;align-items:center;gap:6px;cursor:pointer;}
   .user-chip img{width:26px;height:26px;border-radius:50%;}
   .user-chip span{font-size:11.5px;font-weight:600;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .home-btn{background:none;border:none;color:#fff;font-size:17px;cursor:pointer;display:none;}
   #home-screen{padding:20px 18px;overflow-y:auto;}
-  .home-greet{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#1A1A1A;line-height:1.4;}
+  .home-greet{font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#1A1A1A;line-height:1.4;opacity:0;animation:homeFadeUp 0.45s ease forwards;}
   .home-stats{display:flex;gap:10px;margin-top:16px;}
-  .stat-card{flex:1;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:14px;text-align:center;}
+  .stat-card{flex:1;background:#fff;border:1px solid #E9E3D0;border-radius:12px;padding:14px;text-align:center;opacity:0;animation:homeFadeUp 0.45s ease forwards;transition:transform 0.15s ease;}
+  .stat-card:nth-child(1){animation-delay:0.08s;}
+  .stat-card:nth-child(2){animation-delay:0.16s;}
+  .stat-card:active{transform:scale(0.96);}
   .stat-num{font-family:'Sora',sans-serif;font-weight:800;font-size:22px;color:var(--saffron);}
   .stat-label{font-size:10.5px;color:#8A8A78;margin-top:4px;}
-  .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;}
-  .home-cta-secondary{margin-top:10px;background:#fff;color:var(--indigo);border:1px solid #DFD9C4;padding:13px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .home-cta{margin-top:18px;background:var(--saffron);color:#fff;padding:15px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;opacity:0;animation:homeFadeUp 0.45s ease forwards;animation-delay:0.24s;transition:transform 0.15s ease,box-shadow 0.15s ease;}
+  .home-cta:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(226,88,42,.28);}
+  .home-cta:active{transform:translateY(0) scale(0.97);}
+  .home-cta-secondary{margin-top:10px;background:#fff;color:var(--indigo);border:1px solid #DFD9C4;padding:13px;border-radius:12px;text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;opacity:0;animation:homeFadeUp 0.45s ease forwards;transition:transform 0.15s ease,border-color 0.15s ease;}
+  .home-cta-secondary:nth-of-type(1){animation-delay:0.30s;}
+  .home-cta-secondary:nth-of-type(2){animation-delay:0.34s;}
+  .home-cta-secondary:nth-of-type(3){animation-delay:0.38s;}
+  .home-cta-secondary:nth-of-type(4){animation-delay:0.42s;}
+  .home-cta-secondary:hover{border-color:var(--saffron);transform:translateY(-1px);}
+  .home-cta-secondary:active{transform:translateY(0) scale(0.97);}
+  @keyframes homeFadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
   .home-recent-head{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;}
   .home-recent-head span{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:var(--saffron);cursor:pointer;text-decoration:underline;}
   .home-recent-list{margin-top:12px;}
+  .home-recent-list .hist-item,.home-fav-list .hist-item{opacity:0;animation:homeFadeUp 0.4s ease forwards;transition:transform 0.15s ease;}
+  .home-recent-list .hist-item:active,.home-fav-list .hist-item:active{transform:scale(0.98);}
+  .home-recent-list .hist-item:nth-child(1),.home-fav-list .hist-item:nth-child(1){animation-delay:0.46s;}
+  .home-recent-list .hist-item:nth-child(2),.home-fav-list .hist-item:nth-child(2){animation-delay:0.50s;}
+  .home-recent-list .hist-item:nth-child(3),.home-fav-list .hist-item:nth-child(3){animation-delay:0.54s;}
   .home-support{margin-top:24px;text-align:center;font-size:11.5px;color:#8A8A78;}
   .home-support a{color:var(--saffron);text-decoration:underline;}
 </style>
+
 </head>
 <body>
 <div id="app">
@@ -240,7 +268,7 @@
     <div class="login-icon">🇮🇳</div>
     <div class="login-title" id="loginTitle">Sign in to FoodCheck India</div>
     <div class="login-desc" id="loginDesc">Sign in with Google to personalize your FoodCheck India experience.</div>
-    <div id="gButtonContainer" style="margin-top:28px;display:flex;justify-content:center;"></div>
+    <div id="gButtonContainer" class="g-btn-wrap" style="margin-top:28px;display:flex;justify-content:center;"></div>
     <button class="guest-btn" id="guestBtn">Continue as guest</button>
     <div style="font-size:10.5px;color:#B8B2A0;margin-top:16px;padding:0 20px;">By continuing, you agree to our <a href="/terms.html" style="color:#8A8A78;">Terms of Use</a> and <a href="/privacy.html" style="color:#8A8A78;">Privacy Policy</a>.</div>
   </div>
@@ -781,13 +809,34 @@ function runProductSearch(query){
 }
 document.getElementById('homeViewAll').addEventListener('click', () => { renderHistory(); showScreen('history-screen'); });
 document.getElementById('homeFavViewAll').addEventListener('click', () => { renderFavorites(); showScreen('favorites-screen'); });
+function animateCountUp(el, target, duration){
+  const start = 0;
+  const startTime = performance.now();
+  function tick(now){
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (target - start) * eased);
+    if(progress < 1) requestAnimationFrame(tick);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(tick);
+}
+function retriggerHomeAnimations(){
+  document.querySelectorAll('#home-screen .home-greet, #home-screen .stat-card, #home-screen .home-cta, #home-screen .home-cta-secondary').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
+}
 function renderHome(){
+  retriggerHomeAnimations();
   const hist = loadHistory();
   const firstName = (window.fcUser && window.fcUser.displayName) ? window.fcUser.displayName.split(' ')[0] : 'there';
   document.getElementById('homeGreet').textContent = `Hi ${firstName}, what are you eating today?`;
-  document.getElementById('statTotal').textContent = hist.length;
+  animateCountUp(document.getElementById('statTotal'), hist.length, 600);
   const avg = hist.length ? Math.round(hist.reduce((s,h) => s + h.score, 0) / hist.length) : null;
-  document.getElementById('statAvg').textContent = avg !== null ? avg : '—';
+  if(avg !== null){ animateCountUp(document.getElementById('statAvg'), avg, 600); }
+  else{ document.getElementById('statAvg').textContent = '—'; }
   const listEl = document.getElementById('homeRecentList');
   if(hist.length === 0){
     listEl.innerHTML = '<div class="hist-empty">No scans yet — try your first one!</div>';
